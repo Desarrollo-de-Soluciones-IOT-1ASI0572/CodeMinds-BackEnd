@@ -19,6 +19,6 @@ public class TrackingQueryServiceImpl implements TrackingQueryService {
 
     @Override
     public Optional<Location> handle(GetCurrentLocationQuery query) {
-        return Optional.empty(); 
+        return Optional.empty();
     }
 }
