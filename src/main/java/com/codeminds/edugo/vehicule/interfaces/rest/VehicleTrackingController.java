@@ -1,110 +1,206 @@
 package com.codeminds.edugo.vehicule.interfaces.rest;
 
-import com.codeminds.edugo.vehicule.application.internal.commandservices.ReportSpeedCommandHandler;
-import com.codeminds.edugo.vehicule.application.internal.commandservices.StartRouteCommandHandler;
-import com.codeminds.edugo.vehicule.application.internal.commandservices.UpdateLocationCommandHandler;
-import com.codeminds.edugo.vehicule.application.internal.queryservices.GetCurrentLocationQueryHandler;
-import com.codeminds.edugo.vehicule.application.internal.queryservices.ViewRouteHistoryQueryHandler;
-import com.codeminds.edugo.vehicule.domain.model.commands.ReportSpeedCommand;
-import com.codeminds.edugo.vehicule.domain.model.entities.Location;
-import com.codeminds.edugo.vehicule.domain.model.queries.GetCurrentLocationQuery;
-import com.codeminds.edugo.vehicule.domain.model.queries.ViewRouteHistoryQuery;
+
+import com.codeminds.edugo.vehicule.application.internal.commandservices.TrackingCommandServiceImpl;
+
+import com.codeminds.edugo.vehicule.domain.model.aggregates.Vehicle;
+import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
+import com.codeminds.edugo.vehicule.domain.model.entities.TripStudent;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.LocationRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripStudentRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.VehicleRepository;
 import com.codeminds.edugo.vehicule.interfaces.rest.resources.*;
-import com.codeminds.edugo.vehicule.interfaces.rest.transform.LocationResourceFromEntityAssembler;
-import com.codeminds.edugo.vehicule.interfaces.rest.transform.StartRouteCommandFromResourceAssembler;
-import com.codeminds.edugo.vehicule.interfaces.rest.transform.UpdateLocationCommandFromResourceAssembler;
-import com.codeminds.edugo.vehicule.interfaces.rest.transform.VehicleResourceFromEntityAssembler;
+import com.codeminds.edugo.vehicule.interfaces.rest.transform.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/vehicle-tracking")
 @Tag(name = "Vehicle Tracking", description = "Endpoints for managing vehicle tracking")
-public class VehicleTrackingController {
-    private final StartRouteCommandHandler startRouteHandler;
-    private final UpdateLocationCommandHandler updateLocationHandler;
-    private final GetCurrentLocationQueryHandler getCurrentLocationHandler;
-    private final ViewRouteHistoryQueryHandler viewRouteHistoryHandler;
-    private final ReportSpeedCommandHandler reportSpeedHandler;
+public class VehicleTrackingController{
+    private final TrackingCommandServiceImpl commandService;
 
-    public VehicleTrackingController(StartRouteCommandHandler startRouteHandler,
-                                     UpdateLocationCommandHandler updateLocationHandler,
-                                     GetCurrentLocationQueryHandler getCurrentLocationHandler,
-                                     ViewRouteHistoryQueryHandler viewRouteHistoryHandler,
-                                     ReportSpeedCommandHandler reportSpeedHandler) {
-        this.startRouteHandler = startRouteHandler;
-        this.updateLocationHandler = updateLocationHandler;
-        this.getCurrentLocationHandler = getCurrentLocationHandler;
-        this.viewRouteHistoryHandler = viewRouteHistoryHandler;
-        this.reportSpeedHandler = reportSpeedHandler;
+    private final TripRepository tripRepository;
+
+    private final VehicleRepository vehicleRepository;
+
+    private final TripStudentRepository tripStudentRepository;
+
+    private final LocationRepository locationRepository;
+
+
+    public VehicleTrackingController(TrackingCommandServiceImpl commandService, TripRepository tripRepository, VehicleRepository vehicleRepository, TripStudentRepository tripStudentRepository, LocationRepository locationRepository) {
+        this.commandService = commandService;
+        this.tripRepository = tripRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.tripStudentRepository = tripStudentRepository;
+        this.locationRepository = locationRepository;
     }
 
+    /**
+     * Crea un nuevo vehículo en el sistema.
+     */
+    @PostMapping("/vehicles")
+    public ResponseEntity<VehicleResource> createVehicle(@RequestBody CreateVehicleResource resource) {
+        return commandService.handle(CreateVehicleCommandFromResourceAssembler.toCommandFromResource(resource))
+                .map(vehicle -> new ResponseEntity<>(
+                        VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle),
+                        HttpStatus.CREATED))
+                .orElse(ResponseEntity.badRequest().build());
+    }
+
+
+    /**
+     * Registra un nuevo viaje a partir de un vehículo y su ruta.
+     */
+    @PostMapping("/trips")
+    public ResponseEntity<TripResource> createTrip(@RequestBody CreateTripResource resource) {
+        Optional<Vehicle> optionalVehicle = vehicleRepository.findById(resource.vehicleId());
+        if (optionalVehicle.isEmpty()) return ResponseEntity.badRequest().build();
+
+        Trip trip = new Trip(optionalVehicle.get(), resource.origin(), resource.destination());
+        Trip savedTrip = tripRepository.save(trip);
+
+        return new ResponseEntity<>(TripResourceFromEntityAssembler.toResourceFromEntity(savedTrip), HttpStatus.CREATED);
+    }
+
+
+    /**
+     * Asocia un estudiante a un viaje determinado.
+     */
+    @PostMapping("/trip-students")
+    public ResponseEntity<TripStudentResource> createTripStudent(@RequestBody CreateTripStudentResource resource) {
+        return commandService.handle(CreateTripStudentCommandFromResourceAssembler.toCommandFromResource(resource))
+                .map(student -> new ResponseEntity<>(
+                        TripStudentResourceFromEntityAssembler.toResourceFromEntity(student),
+                        HttpStatus.CREATED))
+                .orElse(ResponseEntity.badRequest().build());
+    }
+
+    /**
+     * Marca el inicio de una ruta para un vehículo.
+     */
     @PostMapping("/routes/start")
     public ResponseEntity<VehicleResource> startRoute(@RequestBody StartRouteResource resource) {
-        return startRouteHandler.handle(
-                        StartRouteCommandFromResourceAssembler.toCommandFromResource(resource))
+        return commandService.handle(StartRouteCommandFromResourceAssembler.toCommandFromResource(resource))
                 .map(vehicle -> new ResponseEntity<>(
                         VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle),
                         CREATED))
                 .orElse(ResponseEntity.badRequest().build());
     }
 
+    /**
+     * Actualiza la ubicación de un vehículo en tiempo real.
+     */
     @PostMapping("/locations")
     public ResponseEntity<LocationResource> updateLocation(@RequestBody UpdateLocationResource resource) {
-        return updateLocationHandler.handle(
-                        UpdateLocationCommandFromResourceAssembler.toCommandFromResource(resource))
+        return commandService.handle(UpdateLocationCommandFromResourceAssembler.toCommandFromResource(resource))
                 .map(location -> new ResponseEntity<>(
                         LocationResourceFromEntityAssembler.toResourceFromEntity(location),
                         CREATED))
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @GetMapping("/vehicles/{vehicleId}/current-location")
-    public ResponseEntity<LocationResource> getCurrentLocation(@PathVariable int vehicleId) {
-        return getCurrentLocationHandler.handle(new GetCurrentLocationQuery(vehicleId))
-                .map(location -> ResponseEntity.ok(
-                        LocationResourceFromEntityAssembler.toResourceFromEntity(location)))
-                .orElse(ResponseEntity.notFound().build());
+    /**
+     * Finaliza la ruta activa de un vehículo.
+     */
+    @PostMapping("/routes/end")
+    public ResponseEntity<Void> endRoute(@RequestBody EndRouteResource resource) {
+        commandService.handle(EndRouteCommandFromResourceAssembler.toCommandFromResource(resource));
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/vehicles/{vehicleId}/route-history")
-    public ResponseEntity<List<LocationResource>> getRouteHistory(
-            @PathVariable int vehicleId,
-            @RequestParam LocalDateTime start,
-            @RequestParam LocalDateTime end) {
+    /**
+     * Registra el abordaje de un estudiante al transporte.
+     */
+    @PostMapping("/boarding")
+    public ResponseEntity<Void> registerBoarding(@RequestBody RegisterStudentBoardingResource resource) {
+        commandService.handle(RegisterStudentBoardingCommandFromResourceAssembler.toCommandFromResource(resource));
+        return ResponseEntity.ok().build();
+    }
 
-        List<Location> locations = viewRouteHistoryHandler.handle(
-                new ViewRouteHistoryQuery(vehicleId, start, end));
+    /**
+     * Registra la bajada de un estudiante del transporte.
+     */
+    @PostMapping("/exit")
+    public ResponseEntity<Void> registerExit(@RequestBody RegisterStudentExitResource resource) {
+        commandService.handle(RegisterStudentExitCommandFromResourceAssembler.toCommandFromResource(resource));
+        return ResponseEntity.ok().build();
+    }
 
-        List<LocationResource> resources = locations.stream()
+
+    /**
+     * Devuelve todos los vehículos registrados.
+     */
+    @GetMapping("/vehicles")
+    public List<VehicleResource> getAllVehicles() {
+        return vehicleRepository.findAll().stream()
+                .map(VehicleResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(toList());
+    }
+
+    /**
+     * Devuelve todos los viajes registrados.
+     */
+    @GetMapping("/trips")
+    public List<TripResource> getAllTrips() {
+        return tripRepository.findAll().stream()
+                .map(TripResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(toList());
+    }
+
+    /**
+     * Devuelve los detalles de un viaje por su ID.
+     */
+    @GetMapping("/trips/{id}")
+    public ResponseEntity<TripResource> getTripById(@PathVariable Long id) {
+        Optional<Trip> optionalTrip = tripRepository.findById(id);
+        return optionalTrip.map(trip ->
+                ResponseEntity.ok(TripResourceFromEntityAssembler.toResourceFromEntity(trip))
+        ).orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Devuelve todos los estudiantes registrados en un viaje específico.
+     */
+    @GetMapping("/trips/{tripId}/students")
+    public List<TripStudentResource> getTripStudentsByTripId(@PathVariable Long tripId) {
+        return tripStudentRepository.findByTrip_Id(tripId).stream()
+                .map(TripStudentResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(toList());
+    }
+
+    /**
+     * Devuelve un estudiante específico dentro de un viaje.
+     */
+    @GetMapping("/trips/{tripId}/students/{studentId}")
+    public ResponseEntity<TripStudentResource> getTripStudentByTripIdAndStudentId(
+            @PathVariable Long tripId,
+            @PathVariable Long studentId
+    ) {
+        TripStudent ts = tripStudentRepository.findByTrip_IdAndStudentId(tripId, studentId);
+        if (ts == null) return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(TripStudentResourceFromEntityAssembler.toResourceFromEntity(ts));
+    }
+
+    /**
+     * Devuelve el historial completo de ubicaciones registradas.
+     */
+    @GetMapping("/locations")
+    public List<LocationResource> getAllLocations() {
+        return locationRepository.findAll().stream()
                 .map(LocationResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-
-        return ResponseEntity.ok(resources);
-    }
-
-    @GetMapping("/vehicles/{vehicleId}/speed-violations")
-    public ResponseEntity<Boolean> checkSpeedViolation(
-            @PathVariable int vehicleId,
-            @RequestParam double speedLimit) {
-
-        return getCurrentLocationHandler.handle(new GetCurrentLocationQuery(vehicleId))
-                .map(location -> ResponseEntity.ok(location.isSpeedLimitExceeded(speedLimit)))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/speed-reports")
-    public ResponseEntity<Boolean> reportSpeed(@RequestBody ReportSpeedResource resource) {
-        return reportSpeedHandler.handle(
-                        new ReportSpeedCommand(resource.vehicleId(), resource.speedLimit()))
-                .map(isViolation -> ResponseEntity.ok(isViolation))
-                .orElse(ResponseEntity.notFound().build());
+                .collect(toList());
     }
 }
