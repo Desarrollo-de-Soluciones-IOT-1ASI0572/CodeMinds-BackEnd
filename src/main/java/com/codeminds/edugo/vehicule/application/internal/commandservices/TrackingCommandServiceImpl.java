@@ -1,0 +1,170 @@
+package com.codeminds.edugo.vehicule.application.internal.commandservices;
+
+import com.codeminds.edugo.shared.domain.model.bus.DomainEventPublisher;
+import com.codeminds.edugo.vehicule.domain.events.*;
+import com.codeminds.edugo.vehicule.domain.model.aggregates.Vehicle;
+import com.codeminds.edugo.vehicule.domain.model.commands.*;
+import com.codeminds.edugo.vehicule.domain.model.entities.Location;
+import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
+import com.codeminds.edugo.vehicule.domain.model.entities.TripStudent;
+import com.codeminds.edugo.vehicule.domain.services.TrackingCommandService;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.LocationRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripStudentRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.VehicleRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class TrackingCommandServiceImpl implements TrackingCommandService {
+
+    private final LocationRepository locationRepository;
+    private final VehicleRepository vehicleRepository;
+
+    private final TripRepository tripRepository;
+
+    private final TripStudentRepository tripStudentRepository;
+    private final DomainEventPublisher eventPublisher;
+
+    private static final double SPEED_LIMIT = 60.0;
+
+    public TrackingCommandServiceImpl(LocationRepository locationRepository, VehicleRepository vehicleRepository, TripRepository tripRepository, TripStudentRepository tripStudentRepository, DomainEventPublisher eventPublisher) {
+        this.locationRepository = locationRepository;
+        this.vehicleRepository = vehicleRepository;
+        this.tripRepository = tripRepository;
+        this.tripStudentRepository = tripStudentRepository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    @Override
+    public Optional<Vehicle> handle(StartRouteCommand command) {
+        Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+        if (optionalTrip.isEmpty()) return Optional.empty();
+
+        Trip trip = optionalTrip.get();
+        Vehicle vehicle = trip.getVehicle();
+
+        trip.startTrip();
+        tripRepository.save(trip);
+
+        vehicle.startMoving();
+        vehicleRepository.save(vehicle);
+
+        eventPublisher.publish(new TripStartedEvent(
+                trip.getId(),
+                vehicle.getId(),
+                vehicle.getDriverId().longValue(),
+                trip.getOrigin(),
+                trip.getDestination(),
+                trip.getStartTime()
+        ));
+
+        return Optional.of(vehicle);
+    }
+
+
+
+    @Override
+    public void handle(EndRouteCommand command) {
+        Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+        if (optionalTrip.isEmpty()) return;
+
+        Trip trip = optionalTrip.get();
+        trip.endTrip();
+        tripRepository.save(trip);
+
+        Vehicle vehicle = trip.getVehicle();
+        vehicle.stopMoving();
+        vehicleRepository.save(vehicle);
+
+        eventPublisher.publish(new TripEndedEvent(
+                trip.getId(),
+                trip.getVehicle().getId(),
+                trip.getEndTime()
+        ));
+    }
+
+    @Override
+    public Optional<Location> handle(UpdateLocationCommand command) {
+        Optional<Vehicle> optionalVehicle = vehicleRepository.findById(command.vehicleId());
+        if (optionalVehicle.isEmpty()) return Optional.empty();
+
+        Location location = new Location(
+                command.vehicleId(),
+                command.latitude(),
+                command.longitude(),
+                command.speed()
+        );
+
+        Location saved = locationRepository.save(location);
+
+        if (location.isSpeedLimitExceeded(SPEED_LIMIT)) {
+            eventPublisher.publish(new SpeedExceededEvent(
+                    command.vehicleId(),
+                    command.speed(),
+                    command.latitude(),
+                    command.longitude(),
+                    location.getTimestamp()
+            ));
+        }
+
+        return Optional.of(saved);
+    }
+
+    @Override
+    public void handle(RegisterStudentBoardingCommand command) {
+        TripStudent tripStudent = tripStudentRepository
+                .findByTrip_IdAndStudentId(command.tripId(), command.studentId());
+
+        tripStudent.markAttendance(command.boardedAt());
+        tripStudentRepository.save(tripStudent);
+
+        eventPublisher.publish(new StudentBoardedEvent(
+                command.studentId(),
+                command.tripId(),
+                command.boardedAt()
+        ));
+    }
+
+    @Override
+    public void handle(RegisterStudentExitCommand command) {
+        TripStudent tripStudent = tripStudentRepository
+                .findByTrip_IdAndStudentId(command.tripId(), command.studentId());
+
+        tripStudent.markExit(command.exitedAt());
+        tripStudentRepository.save(tripStudent);
+
+        eventPublisher.publish(new StudentExitedEvent(
+                command.studentId(),
+                command.tripId(),
+                command.exitedAt()
+        ));
+    }
+
+    @Override
+    public Optional<Vehicle> handle(CreateVehicleCommand command) {
+        Vehicle vehicle = new Vehicle(command.driverId(), command.capacity());
+        Vehicle saved = vehicleRepository.save(vehicle);
+        return Optional.of(saved);
+    }
+
+    @Override
+    public Optional<TripStudent> handle(CreateTripStudentCommand command) {
+
+        TripStudent existing = tripStudentRepository.findByTrip_IdAndStudentId(command.tripId(), command.studentId());
+        if (existing != null) return Optional.of(existing);
+
+        Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+        if (optionalTrip.isEmpty()) return Optional.empty();
+
+        Trip trip = optionalTrip.get();
+        TripStudent tripStudent = new TripStudent(command.studentId());
+        trip.addStudent(tripStudent);
+
+        TripStudent saved = tripStudentRepository.save(tripStudent);
+        return Optional.of(saved);
+    }
+
+
+}
