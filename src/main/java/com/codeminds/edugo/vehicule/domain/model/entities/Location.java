@@ -1,35 +1,34 @@
 package com.codeminds.edugo.vehicule.domain.model.entities;
 
-import com.codeminds.edugo.vehicule.domain.model.valueobjects.Coordinates;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-
 @Entity
 @Table(name = "locations")
 @Getter
 public class Location {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(name = "vehicleid")
-    private Integer vehicleId;
+    @Column(name = "vehicle_id", nullable = false)
+    private Long vehicleId;
 
     private Double latitude;
     private Double longitude;
     private Double speed;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime timestamp;
 
     protected Location() {
-
+        // For JPA
     }
 
-    public Location(Integer vehicleId, Double latitude, Double longitude, Double speed) {
+    public Location(Long vehicleId, Double latitude, Double longitude, Double speed) {
         this.vehicleId = vehicleId;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -37,11 +36,15 @@ public class Location {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Integer getId() {
+    public boolean isSpeedLimitExceeded(Double limit) {
+        return speed != null && speed > limit;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public Integer getVehicleId() {
+    public Long getVehicleId() {
         return vehicleId;
     }
 
@@ -59,9 +62,5 @@ public class Location {
 
     public LocalDateTime getTimestamp() {
         return timestamp;
-    }
-
-    public boolean isSpeedLimitExceeded(Double limit) {
-        return speed > limit;
     }
 }
