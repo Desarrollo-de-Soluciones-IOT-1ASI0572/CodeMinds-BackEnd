@@ -1,12 +1,13 @@
 package com.codeminds.edugo.vehicule.domain.model.aggregates;
 
 import com.codeminds.edugo.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
+import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
+import com.codeminds.edugo.vehicule.domain.model.valueobjects.VehicleStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Entity
 @Table(name = "vehicles")
@@ -23,24 +24,42 @@ public class Vehicle extends AuditableAbstractAggregateRoot<Vehicle> {
     @Column(nullable = false)
     private Integer capacity;
 
-    @Column(name = "student_id", nullable = true)
-    private Integer studentId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private VehicleStatus status = VehicleStatus.STOPPED;
+
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Trip> trips = new ArrayList<>();
 
     protected Vehicle() {
         this.setCreatedAt();
         this.setUpdatedAt();
     }
 
-    public Vehicle(Integer driverId, Integer capacity, Integer studentId) {
+    public Vehicle(Integer driverId, Integer capacity) {
         this.driverId = driverId;
         this.capacity = capacity;
-        this.studentId = studentId;
+        this.status = VehicleStatus.STOPPED;
         this.setCreatedAt();
         this.setUpdatedAt();
     }
 
+    public void updateCapacity(Integer newCapacity) {
+        if (newCapacity < 0)
+            throw new IllegalArgumentException("Capacity cannot be negative");
+        this.capacity = newCapacity;
+        this.setUpdatedAt();
+    }
+
+    public void updateStatus(VehicleStatus newStatus) {
+        this.status = newStatus;
+        this.setUpdatedAt();
+    }
+
+
+    // Getters manuales
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public Integer getDriverId() {
@@ -51,28 +70,23 @@ public class Vehicle extends AuditableAbstractAggregateRoot<Vehicle> {
         return capacity;
     }
 
-    public Integer getStudentId() {
-        return studentId;
+    public VehicleStatus getStatus() {
+        return status;
     }
 
-    public Integer getVehicleId() {
-        return getId() != null ? getId().intValue() : null;
+    public List<Trip> getTrips() {
+        return trips;
     }
 
-    public void updateCapacity(Integer newCapacity) {
-        if (newCapacity < 0)
-            throw new IllegalArgumentException("Capacity cannot be negative");
-        this.capacity = newCapacity;
+    public void startMoving() {
+        this.status = VehicleStatus.MOVING;
         this.setUpdatedAt();
     }
 
-    public void assignStudent(Integer studentId) {
-        this.studentId = studentId;
+    public void stopMoving() {
+        this.status = VehicleStatus.STOPPED;
         this.setUpdatedAt();
     }
 
-    public void removeStudent() {
-        this.studentId = null;
-        this.setUpdatedAt();
-    }
+
 }
