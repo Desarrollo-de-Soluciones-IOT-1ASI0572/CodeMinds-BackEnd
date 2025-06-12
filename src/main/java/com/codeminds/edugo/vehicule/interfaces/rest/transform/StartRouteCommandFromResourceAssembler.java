@@ -6,8 +6,7 @@ import com.codeminds.edugo.vehicule.interfaces.rest.resources.StartRouteResource
 public class StartRouteCommandFromResourceAssembler {
     public static StartRouteCommand toCommandFromResource(StartRouteResource resource) {
         return new StartRouteCommand(
-                resource.vehicleId(),
-                resource.driverId()
+                resource.tripId()
         );
     }
 }
