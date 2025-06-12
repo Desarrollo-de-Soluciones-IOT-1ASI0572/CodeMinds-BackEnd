@@ -12,32 +12,32 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OpenApiConfiguration {
-        @Bean
-        public OpenAPI learningPlatformOpenApi() {
-                // General configuration
-                var openApi = new OpenAPI();
-                openApi
-                                .info(new Info()
-                                                .title("EduGo API")
-                                                .description("EduGo RESTful API documentation.")
-                                                .version("v1.0.0")
-                                                .license(new License().name("Apache 2.0")
-                                                                .url("https://springdoc.org")))
-                                .externalDocs(new ExternalDocumentation()
-                                                .description("EduGo API Wiki Documentation")
-                                                .url("https://github.com/AgroSupport-UPC/Backend/tree/main#readme"));
-                // Add security scheme
-                final String securitySchemeName = "bearerAuth";
+    @Bean
+    public OpenAPI flexPalPlatformApi() {
+        var openApi = new OpenAPI();
+        openApi
+                .info(new Info()
+                        .title("EduGo Platform API")
+                        .description("EduGo Platform application REST API documentation.")
+                        .version("v1.0.0")
+                        .license(new License().name("Apache 2.0")
+                                .url("https://springdoc.org")))
+                .externalDocs(new ExternalDocumentation()
+                        .description("EduGo Platform wiki Documentation")
+                        .url("https://edugo-platform.wiki.github.io/docs"));
 
-                openApi.addSecurityItem(new SecurityRequirement()
-                                .addList(securitySchemeName))
-                                .components(new Components()
-                                                .addSecuritySchemes(securitySchemeName,
-                                                                new SecurityScheme()
-                                                                                .name(securitySchemeName)
-                                                                                .type(SecurityScheme.Type.HTTP)
-                                                                                .scheme("bearer")
-                                                                                .bearerFormat("JWT")));
-                return openApi;
-        }
+        final String securitySchemeName = "bearerAuth";
+
+        openApi.addSecurityItem(new SecurityRequirement()
+                        .addList(securitySchemeName))
+                .components(new Components()
+                        .addSecuritySchemes(securitySchemeName, new SecurityScheme()
+                                .name(securitySchemeName)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")));
+
+
+        return openApi;
+    }
 }
