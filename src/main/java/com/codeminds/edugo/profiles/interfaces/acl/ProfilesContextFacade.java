@@ -1,81 +1,65 @@
 package com.codeminds.edugo.profiles.interfaces.acl;
 
-import java.util.Optional;
-
+import com.codeminds.edugo.profiles.domain.model.commands.CreateProfileCommand;
+import com.codeminds.edugo.profiles.domain.model.queries.GetProfileByEmailQuery;
+import com.codeminds.edugo.profiles.domain.services.ProfileCommandService;
+import com.codeminds.edugo.profiles.domain.services.ProfileQueryService;
 import org.springframework.stereotype.Service;
 
-import com.codeminds.edugo.profiles.domain.model.queries.GetDriverByIdQuery;
-import com.codeminds.edugo.profiles.domain.model.queries.GetProfileByUserIdQuery;
-import com.codeminds.edugo.profiles.domain.model.queries.GetParentByIdQuery;
-import com.codeminds.edugo.iam.domain.model.aggregates.User;
-import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
-import com.codeminds.edugo.profiles.domain.model.commands.CreateDriverCommand;
-import com.codeminds.edugo.profiles.domain.model.commands.CreateParentCommand;
-import com.codeminds.edugo.profiles.domain.model.entities.Driver;
-import com.codeminds.edugo.profiles.domain.model.entities.Parent;
-import com.codeminds.edugo.profiles.domain.services.DriverCommandService;
-import com.codeminds.edugo.profiles.domain.services.DriverQueryService;
-import com.codeminds.edugo.profiles.domain.services.ParentCommandService;
-import com.codeminds.edugo.profiles.domain.services.ParentQueryService;
-import com.codeminds.edugo.profiles.domain.services.ProfileQueryService;
-
+/**
+ * Service Facade for the Profile context.
+ *
+ * <p>
+ * It is used by the other contexts to interact with the Profile context.
+ * It is implemented as part of an anti-corruption layer (ACL) to be consumed by
+ * other contexts.
+ * </p>
+ *
+ */
 @Service
 public class ProfilesContextFacade {
+    private final ProfileCommandService profileCommandService;
     private final ProfileQueryService profileQueryService;
-    private final DriverQueryService driverQueryService;
-    private final DriverCommandService driverCommandService;
-    private final ParentQueryService parentQueryService;
-    private final ParentCommandService parentCommandService;
 
-    public ProfilesContextFacade(
-            ProfileQueryService profileQueryService,
-            DriverQueryService driverQueryService,
-            DriverCommandService driverCommandService,
-            ParentQueryService parentQueryService,
-            ParentCommandService parentCommandService) {
+    public ProfilesContextFacade(ProfileCommandService profileCommandService, ProfileQueryService profileQueryService) {
+        this.profileCommandService = profileCommandService;
         this.profileQueryService = profileQueryService;
-        this.driverQueryService = driverQueryService;
-        this.driverCommandService = driverCommandService;
-        this.parentQueryService = parentQueryService;
-        this.parentCommandService = parentCommandService;
     }
 
-    public Optional<Profile> fetchProfileByDriverId(Long driverId) {
-        var driverProfileQuery = new GetDriverByIdQuery(driverId);
-        var driver = driverQueryService.handle(driverProfileQuery);
-        if (driver.isEmpty())
-            return Optional.empty();
-        Long userId = driver.get().getUserId();
-        var profileQuery = new GetProfileByUserIdQuery(userId);
-        return profileQueryService.handle(profileQuery);
+    /**
+     * Creates a new Profile
+     *
+     * @param firstName the first name
+     * @param lastName  the last name
+     * @param email     the email
+     * @param street    the street address
+     * @param number    the number
+     * @param city      the city
+     * @param state     the state
+     * @param zipCode   the zip code
+     * @return the profile id
+     */
+    public Long createProfile(String fullName, String email, String mobileNumber, String address, String gender,
+            String photoUrl) {
+        var createProfileCommand = new CreateProfileCommand(fullName, email, mobileNumber, address, gender, photoUrl);
+        var profile = profileCommandService.handle(createProfileCommand);
+        if (profile.isEmpty())
+            return 0L;
+        return profile.get().getId();
     }
 
-    public Optional<Profile> fetchProfileByParentId(Long parentId) {
-        var parentProfileQuery = new GetParentByIdQuery(parentId);
-        var parent = parentQueryService.handle(parentProfileQuery);
-        if (parent.isEmpty())
-            return Optional.empty();
-        Long userId = parent.get().getUserId();
-        var profileQuery = new GetProfileByUserIdQuery(userId);
-        return profileQueryService.handle(profileQuery);
-    }
+    /**
+     * Fetches the profile id by email
+     *
+     * @param email the email
+     * @return the profile id
+     */
+    public Long fetchProfileIdByEmail(String email) {
+        var getProfileByEmailQuery = new GetProfileByEmailQuery(email);
+        var profile = profileQueryService.handle(getProfileByEmailQuery);
+        if (profile.isEmpty())
+            return 0L;
+        return profile.get().getId();
 
-    public Optional<Driver> fetchDriverById(Long driverId) {
-        var getDriverByIdQuery = new GetDriverByIdQuery(driverId);
-        return driverQueryService.handle(getDriverByIdQuery);
     }
-
-    public Optional<Parent> fetchParentById(Long parentId) {
-        var getParentByIdQuery = new GetParentByIdQuery(parentId);
-        return parentQueryService.handle(getParentByIdQuery);
-    }
-
-    public Long createDriver(Long userId, User user) {
-        return driverCommandService.handle(new CreateDriverCommand(userId), user);
-    }
-
-    public Long createParent(Long userId, User user) {
-        return parentCommandService.handle(new CreateParentCommand(userId), user);
-    }
-
 }

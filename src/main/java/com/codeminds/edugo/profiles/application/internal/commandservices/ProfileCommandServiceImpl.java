@@ -1,63 +1,40 @@
 package com.codeminds.edugo.profiles.application.internal.commandservices;
 
-import java.util.Optional;
-
-import org.springframework.stereotype.Service;
-
-import com.codeminds.edugo.profiles.application.internal.outboundservices.acl.ExternalUserService;
-import com.codeminds.edugo.profiles.domain.exceptions.ProfileNotFoundException;
-import com.codeminds.edugo.profiles.domain.exceptions.SameUserException;
-import com.codeminds.edugo.profiles.domain.exceptions.UserNotFoundException;
+import com.codeminds.edugo.profiles.application.internal.outboundservices.acl.ExternalIAMService;
 import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
 import com.codeminds.edugo.profiles.domain.model.commands.CreateProfileCommand;
-import com.codeminds.edugo.profiles.domain.model.commands.DeleteProfileCommand;
-import com.codeminds.edugo.profiles.domain.model.commands.UpdateProfileCommand;
 import com.codeminds.edugo.profiles.domain.services.ProfileCommandService;
-import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.ProfileRepository;
+import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.repositories.ProfileRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class ProfileCommandServiceImpl implements ProfileCommandService {
-
     private final ProfileRepository profileRepository;
-    private final ExternalUserService externalUserService;
+    private final ExternalIAMService externalIAMService;
 
-    public ProfileCommandServiceImpl(ProfileRepository profileRepository, ExternalUserService externalUserService) {
+    public ProfileCommandServiceImpl(ProfileRepository profileRepository, ExternalIAMService externalIAMService) {
         this.profileRepository = profileRepository;
-        this.externalUserService = externalUserService;
+        this.externalIAMService = externalIAMService;
     }
 
     @Override
-    public Long handle(CreateProfileCommand command) {
-        var user = externalUserService.fetchUserById(command.userId());
-        if (user.isEmpty()) {
-            throw new UserNotFoundException(command.userId());
+    public Optional<Profile> handle(CreateProfileCommand command) {
+        var emailAddress = command.email();
+        profileRepository.findByEmail(emailAddress).map(profile -> {
+            throw new IllegalArgumentException("Profile with email " + command.email() + " already exists");
+        });
+        var userId = externalIAMService.fetchUserIdByUsername(command.email());
+        if (userId.isEmpty()) {
+            throw new IllegalArgumentException("User with email " + command.email() + " does not exist");
         }
-        var sameUser = profileRepository.findByUser_Id(command.userId());
-        if (sameUser.isPresent()) {
-            throw new SameUserException(command.userId());
+        var role = externalIAMService.fetchUserRoleByUsername(command.email());
+        if (role.isEmpty()) {
+            throw new IllegalArgumentException("Role for user with email " + command.email() + " does not exist");
         }
-        Profile profile = new Profile(command, user.get());
+        var profile = new Profile(command, userId.get(), role.get());
         profileRepository.save(profile);
-        return profile.getId();
-    }
-
-    @Override
-    public Optional<Profile> handle(UpdateProfileCommand command) {
-        var profile = profileRepository.findById(command.id());
-        if (profile.isEmpty()) {
-            return Optional.empty();
-        }
-        var profileToUpdate = profile.get();
-        Profile updatedProfile = profileRepository.save(profileToUpdate.update(command));
-        return Optional.of(updatedProfile);
-    }
-
-    @Override
-    public void handle(DeleteProfileCommand command) {
-        var profile = profileRepository.findById(command.id());
-        if (profile.isEmpty()) {
-            throw new ProfileNotFoundException(command.id());
-        }
-        profileRepository.delete(profile.get());
+        return Optional.of(profile);
     }
 }

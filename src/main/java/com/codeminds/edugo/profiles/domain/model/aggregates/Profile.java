@@ -1,13 +1,8 @@
 package com.codeminds.edugo.profiles.domain.model.aggregates;
 
-import com.codeminds.edugo.iam.domain.model.aggregates.User;
 import com.codeminds.edugo.profiles.domain.model.commands.CreateProfileCommand;
-import com.codeminds.edugo.profiles.domain.model.commands.UpdateProfileCommand;
 import com.codeminds.edugo.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,42 +11,79 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Profile extends AuditableAbstractAggregateRoot<Profile> {
-    @NotNull(message = "Profile full name cannot be null")
-    private String full_name;
-    @NotNull(message = "Profile email cannot be null")
-    private String email;
-    @NotNull(message = "Profile phone number cannot be null")
-    private String phone_number;
-    @NotNull(message = "Gender cannot be null")
-    private String gender;
-    @NotNull(message = "Profile picture cannot be null")
-    private String profile_picture_url;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @NotNull(message = "User ID must not be null")
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
+
+    @NotNull(message = "Name must not be null")
+    @Column(name = "name", nullable = false)
+    private String fullName;
+
+    @NotNull(message = "Email must not be null")
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
+    @NotNull(message = "Mobile number must not be null")
+    @Column(name = "mobile_number", nullable = false, unique = true)
+    private String mobileNumber;
+
+    @NotNull(message = "Address must not be null")
+    @Column(name = "address", nullable = false)
+    private String address;
+
+    @NotNull(message = "Gender must not be null")
+    @Column
+    private String gender;
+
+    @NotNull(message = "Photo URL must not be null")
+    @Column(name = "photo_url", nullable = false)
+    private String photoUrl;
+
+    @NotNull(message = "Role must not be null")
+    @Column(name = "role", nullable = false)
+    private String role;
+
+    public Profile(String fullName, String email, String mobileNumber, String address, String gender, String photoUrl) {
+        this.fullName = fullName;
+        this.email = email;
+        this.mobileNumber = mobileNumber;
+        this.address = address;
+        this.gender = gender;
+        this.photoUrl = photoUrl;
+    }
+
+    public Profile(CreateProfileCommand command, Long userId, String role) {
+        this.fullName = command.fullName();
+        this.email = command.email();
+        this.mobileNumber = command.mobileNumber();
+        this.address = command.address();
+        this.gender = command.gender();
+        this.photoUrl = command.photoUrl();
+        this.userId = userId;
+        this.role = role;
+    }
 
     public Profile() {
     }
 
-    public Profile(CreateProfileCommand command, User user) {
-        this.full_name = command.full_name();
-        this.email = command.email();
-        this.phone_number = command.phone_number();
-        this.gender = command.gender();
-        this.profile_picture_url = command.profile_picture_url();
-        this.user = user;
+    public void updateName(String fullName) {
+        this.fullName = fullName;
     }
 
-    public Profile update(UpdateProfileCommand command) {
-        this.full_name = command.full_name();
-        this.email = command.email();
-        this.phone_number = command.phone_number();
-        this.profile_picture_url = command.profile_picture_url();
-        return this;
+    public void updateEmail(String email) {
+        this.email = email;
     }
 
-    public Long getUserId() {
-        return this.user.getId();
+    public void updateAddress(String address) {
+        this.address = address;
+    }
+
+    public void updateMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
+
+    public void updatePhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

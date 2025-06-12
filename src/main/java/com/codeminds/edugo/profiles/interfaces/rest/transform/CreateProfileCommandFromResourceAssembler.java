@@ -5,12 +5,7 @@ import com.codeminds.edugo.profiles.interfaces.rest.resources.CreateProfileResou
 
 public class CreateProfileCommandFromResourceAssembler {
     public static CreateProfileCommand toCommandFromResource(CreateProfileResource resource) {
-        return new CreateProfileCommand(
-                resource.userId(),
-                resource.fullName(),
-                resource.email(),
-                resource.phone_number(),
-                resource.gender(),
-                resource.profile_picture_url());
+        return new CreateProfileCommand(resource.fullName(), resource.email(), resource.mobileNumber(),
+                resource.address(), resource.gender(), resource.photoUrl());
     }
 }
