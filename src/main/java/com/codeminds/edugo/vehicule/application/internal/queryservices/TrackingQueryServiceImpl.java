@@ -1,9 +1,13 @@
 package com.codeminds.edugo.vehicule.application.internal.queryservices;
 
 import com.codeminds.edugo.vehicule.domain.model.entities.Location;
-import com.codeminds.edugo.vehicule.domain.model.queries.GetCurrentLocationQuery;
-import com.codeminds.edugo.vehicule.domain.model.queries.ViewRouteHistoryQuery;
+import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
+import com.codeminds.edugo.vehicule.domain.model.entities.TripStudent;
+import com.codeminds.edugo.vehicule.domain.model.queries.*;
 import com.codeminds.edugo.vehicule.domain.services.TrackingQueryService;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.LocationRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripRepository;
+import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripStudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,13 +16,42 @@ import java.util.Optional;
 @Service
 public class TrackingQueryServiceImpl implements TrackingQueryService {
 
-    @Override
-    public List<Location> handle(ViewRouteHistoryQuery query) {
-        return List.of();
+    private final LocationRepository locationRepository;
+    private final TripRepository tripRepository;
+    private final TripStudentRepository tripStudentRepository;
+
+    public TrackingQueryServiceImpl(LocationRepository locationRepository,
+                                    TripRepository tripRepository,
+                                    TripStudentRepository tripStudentRepository) {
+        this.locationRepository = locationRepository;
+        this.tripRepository = tripRepository;
+        this.tripStudentRepository = tripStudentRepository;
     }
 
     @Override
     public Optional<Location> handle(GetCurrentLocationQuery query) {
-        return Optional.empty();
+        return locationRepository.findLastLocation(query.vehicleId());
+    }
+
+    @Override
+    public List<Location> handle(ViewRouteHistoryQuery query) {
+        return locationRepository.findByVehicleIdAndTimestampBetweenOrderByTimestampAsc(
+                query.vehicleId(), query.startDate(), query.endDate()
+        );
+    }
+
+    @Override
+    public Optional<Trip> handle(GetActiveTripQuery query) {
+        return tripRepository.findByVehicle_IdAndEndTimeIsNull(query.vehicleId());
+    }
+
+    @Override
+    public List<Trip> handle(GetPastTripsByDriverQuery query) {
+        return tripRepository.findByVehicle_DriverIdAndEndTimeIsNotNull(query.driverId());
+    }
+
+    @Override
+    public List<TripStudent> handle(GetTripStudentsQuery query) {
+        return tripStudentRepository.findByTrip_Id(query.tripId());
     }
 }
