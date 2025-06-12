@@ -21,4 +21,5 @@ public abstract class AuditableModel {
     @LastModifiedDate
     @Column(nullable = false)
     private Date updatedAt;
+
 }
