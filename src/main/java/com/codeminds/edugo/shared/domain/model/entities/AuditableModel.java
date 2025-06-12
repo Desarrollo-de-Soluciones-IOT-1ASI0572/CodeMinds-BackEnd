@@ -13,16 +13,13 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public abstract class AuditableModel {
-
     @Getter
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private Date createdAt;
-
     @Getter
     @LastModifiedDate
     @Column(nullable = false)
     private Date updatedAt;
 
 }
-
