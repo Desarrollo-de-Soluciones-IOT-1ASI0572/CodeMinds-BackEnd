@@ -9,7 +9,9 @@ public class UpdateLocationCommandFromResourceAssembler {
                 resource.vehicleId(),
                 resource.latitude(),
                 resource.longitude(),
-                resource.speed()
+                resource.speed(),
+                resource.time()
+
         );
     }
 }
