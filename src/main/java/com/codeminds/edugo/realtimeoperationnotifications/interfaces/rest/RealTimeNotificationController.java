@@ -1,9 +1,7 @@
 package com.codeminds.edugo.realtimeoperationnotifications.interfaces.rest;
 
 import com.codeminds.edugo.realtimeoperationnotifications.domain.model.aggregates.RealTimeNotification;
-import com.codeminds.edugo.realtimeoperationnotifications.domain.model.queries.GetAllRealTimeNotificationsQuery;
-import com.codeminds.edugo.realtimeoperationnotifications.domain.model.queries.GetRealNotificationsForUserId;
-import com.codeminds.edugo.realtimeoperationnotifications.domain.model.queries.GetRealNotificationsForUserType;
+import com.codeminds.edugo.realtimeoperationnotifications.domain.model.queries.*;
 import com.codeminds.edugo.realtimeoperationnotifications.domain.services.RealTimeNotificationCommandService;
 import com.codeminds.edugo.realtimeoperationnotifications.domain.services.RealTimeNotificationQueryService;
 import com.codeminds.edugo.realtimeoperationnotifications.interfaces.rest.resources.CreateRealTimeNotificationResource;
@@ -39,13 +37,13 @@ public class RealTimeNotificationController {
                 .handle(CreateRealTimeNotificationCommandFromResourceAssembler.toCommandFromResource(resource));
 
         return realTimeNotificationResource.flatMap(realTimeNotification ->
-                Optional.of(new ResponseEntity<>(
-                        RealTimeNotificationResourceFromEntityAssembler.toResourceFromEntity(realTimeNotification), CREATED)))
+                        Optional.of(new ResponseEntity<>(
+                                RealTimeNotificationResourceFromEntityAssembler.toResourceFromEntity(realTimeNotification), CREATED)))
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     @GetMapping
-    private ResponseEntity<List<RealTimeNotificationResource>> getAllRealTimeNotification() {
+    public ResponseEntity<List<RealTimeNotificationResource>> getAllRealTimeNotification() {
         var getAllRealTimeNotifications = new GetAllRealTimeNotificationsQuery();
         var realTimeNotification = realTimeNotificationQueryService.handle(getAllRealTimeNotifications);
         var realTimeNotificationsResources = realTimeNotification.stream().map(
@@ -67,5 +65,29 @@ public class RealTimeNotificationController {
         var realTimeNotification = realTimeNotificationQueryService.handle(getRealTimeNotificationsByUserId);
         var realTimeNotificationsResources = realTimeNotification.stream().map(RealTimeNotificationResourceFromEntityAssembler::toResourceFromEntity).toList();
         return ResponseEntity.ok(realTimeNotificationsResources);
+    }
+
+    @GetMapping("/trip-id/{tripId}")
+    public ResponseEntity<List<RealTimeNotificationResource>> getNotificationsByTripId(@PathVariable Long tripId) {
+        var query = new GetRealNotificationsForTripId(tripId);
+        var results = realTimeNotificationQueryService.handle(query);
+        var resources = results.stream().map(RealTimeNotificationResourceFromEntityAssembler::toResourceFromEntity).toList();
+        return ResponseEntity.ok(resources);
+    }
+
+    @GetMapping("/student-id/{studentId}")
+    public ResponseEntity<List<RealTimeNotificationResource>> getNotificationsByStudentId(@PathVariable Long studentId) {
+        var query = new GetRealNotificationsForStudentId(studentId);
+        var results = realTimeNotificationQueryService.handle(query);
+        var resources = results.stream().map(RealTimeNotificationResourceFromEntityAssembler::toResourceFromEntity).toList();
+        return ResponseEntity.ok(resources);
+    }
+
+    @GetMapping("/user-id/{userId}/trip-id/{tripId}")
+    public ResponseEntity<List<RealTimeNotificationResource>> getNotificationsByUserAndTrip(@PathVariable Long userId, @PathVariable Long tripId) {
+        var query = new GetRealNotificationsForUserAndTrip(userId, tripId);
+        var results = realTimeNotificationQueryService.handle(query);
+        var resources = results.stream().map(RealTimeNotificationResourceFromEntityAssembler::toResourceFromEntity).toList();
+        return ResponseEntity.ok(resources);
     }
 }
