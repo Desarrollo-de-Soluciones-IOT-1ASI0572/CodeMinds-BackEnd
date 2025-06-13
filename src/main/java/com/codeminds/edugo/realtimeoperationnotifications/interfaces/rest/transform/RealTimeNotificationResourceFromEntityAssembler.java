@@ -8,9 +8,14 @@ public class RealTimeNotificationResourceFromEntityAssembler {
         return new RealTimeNotificationResource(
                 entity.getId(),
                 entity.getMessage(),
-                entity.getStatus().toString(),
+                entity.getStatus().name(),
                 entity.getUserType(),
-                entity.getUserId()
+                entity.getUserId(),
+                entity.getEvent().getEventType(),
+                entity.getEvent().getDescription(),
+                entity.getTimestamp(),
+                entity.getTripId(),
+                entity.getStudentId()
         );
     }
 }
