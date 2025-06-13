@@ -1,4 +1,10 @@
 package com.codeminds.edugo.realtimeoperationnotifications.interfaces.rest.resources;
 
-public record CreateRealTimeNotificationResource(String eventType, String description, String userType, Long userId) {
-}
+public record CreateRealTimeNotificationResource(
+        String eventType,
+        String description,
+        String userType,
+        Long userId,
+        Long tripId,
+        Long studentId
+) {}
