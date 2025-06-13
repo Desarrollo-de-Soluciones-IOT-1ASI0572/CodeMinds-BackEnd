@@ -6,6 +6,7 @@ import com.codeminds.edugo.shared.domain.model.aggregates.AuditableAbstractAggre
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,38 +17,44 @@ public class RealTimeNotification extends AuditableAbstractAggregateRoot<RealTim
     private NotificationStatus status;
     private LocalDateTime timestamp;
     private String userType;
-
     private Long userId;
+
+    private Long tripId;      // Nuevo: ID del viaje relacionado (opcional)
+    private Long studentId;   // Nuevo: ID del estudiante relacionado (opcional)
 
     @Embedded
     private NotificationEvent event;
 
-    public RealTimeNotification(String eventType, String description, String userType, Long userId) {
+    public RealTimeNotification(
+            String eventType,
+            String description,
+            String userType,
+            Long userId,
+            Long tripId,
+            Long studentId
+    ) {
         this.timestamp = LocalDateTime.now();
         this.event = new NotificationEvent(eventType, description);
         this.message = generateMessage(eventType, description);
         this.status = NotificationStatus.PENDING;
         this.userType = userType;
         this.userId = userId;
+        this.tripId = tripId;
+        this.studentId = studentId;
     }
+
     public RealTimeNotification() {}
 
     private String generateMessage(String eventType, String description) {
+        String time = timestamp != null ? timestamp.toLocalTime().withNano(0).toString() : "hora desconocida";
 
-        String time = timestamp != null ? timestamp.toLocalTime().withNano(0).toString() : "Unknown time";
-
-        switch (eventType) {
-            case "boarded":
-                return description + " subió al vehículo. " + time;
-            case "arrived":
-                return description + " llegó al destino. " + time;
-            case "speeding":
-                return "El vehículo está excediendo la velocidad. " + time;
-            case "change":
-                return "El vehículo cambió de ruta. " + time;
-            default:
-                return "Notificación generada: " + description + " a las " + time;
-        }
+        return switch (eventType) {
+            case "boarded" -> description + " subió al vehículo. " + time;
+            case "arrived" -> description + " llegó al destino. " + time;
+            case "speeding" -> "El vehículo está excediendo la velocidad. " + time;
+            case "change" -> "El vehículo cambió de ruta. " + time;
+            default -> "Notificación generada: " + description + " a las " + time;
+        };
     }
 
     public void markAsSent() {
@@ -58,6 +65,15 @@ public class RealTimeNotification extends AuditableAbstractAggregateRoot<RealTim
         this.status = NotificationStatus.FAILED;
     }
 
+    // Getters manuales adicionales (opcional, según tu estilo)
+    public Long getTripId() {
+        return tripId;
+    }
+
+    public Long getStudentId() {
+        return studentId;
+    }
+
     public String getMessage() {
         return message;
     }
@@ -66,11 +82,20 @@ public class RealTimeNotification extends AuditableAbstractAggregateRoot<RealTim
         return status;
     }
 
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
     public NotificationEvent getEvent() {
         return event;
     }
 
-    public String getUserType() { return userType; }
-
-    public Long getUserId() { return userId; }
 }
