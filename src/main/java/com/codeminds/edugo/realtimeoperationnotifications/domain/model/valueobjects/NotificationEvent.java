@@ -1,10 +1,8 @@
 package com.codeminds.edugo.realtimeoperationnotifications.domain.model.valueobjects;
 
 import jakarta.persistence.Embeddable;
-import lombok.Getter;
 
 @Embeddable
-@Getter
 public class NotificationEvent {
 
     private final String eventType;
@@ -28,5 +26,14 @@ public class NotificationEvent {
 
         this.eventType = eventType;
         this.description = description;
+    }
+
+    // ✅ GETTERS NECESARIOS
+    public String getEventType() {
+        return eventType;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
