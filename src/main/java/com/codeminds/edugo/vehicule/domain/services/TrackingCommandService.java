@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface TrackingCommandService {
     Optional<Vehicle> handle(StartRouteCommand command);
 
-    Optional<Location> handle(UpdateLocationCommand command);
+    Optional<Location> handle(CreateLocationCommand command);
 
     void handle(EndRouteCommand command);
 
@@ -21,5 +21,7 @@ public interface TrackingCommandService {
     Optional<Vehicle> handle(CreateVehicleCommand command);
 
     Optional<TripStudent> handle(CreateTripStudentCommand command);
+
+    Optional<Location> getCurrentLocation(Long vehicleId);
 
 }
