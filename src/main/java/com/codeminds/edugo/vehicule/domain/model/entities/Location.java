@@ -24,15 +24,20 @@ public class Location {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime timestamp;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
+
     protected Location() {
         // For JPA
     }
 
-    public Location(Long vehicleId, Double latitude, Double longitude, Double speed) {
+    public Location(Long vehicleId, Double latitude, Double longitude, Double speed, Trip trip) {
         this.vehicleId = vehicleId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.speed = speed;
+        this.trip = trip;
         this.timestamp = LocalDateTime.now();
     }
 
@@ -62,5 +67,9 @@ public class Location {
 
     public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public Trip getTrip() {
+        return trip;
     }
 }
