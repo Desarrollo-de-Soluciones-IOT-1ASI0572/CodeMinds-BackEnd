@@ -86,15 +86,19 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
     }
 
     @Override
-    public Optional<Location> handle(UpdateLocationCommand command) {
+    public Optional<Location> handle(CreateLocationCommand command) {
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(command.vehicleId());
         if (optionalVehicle.isEmpty()) return Optional.empty();
+
+        Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+        if (optionalTrip.isEmpty()) return Optional.empty();
 
         Location location = new Location(
                 command.vehicleId(),
                 command.latitude(),
                 command.longitude(),
-                command.speed()
+                command.speed(),
+                optionalTrip.get()
         );
 
         Location saved = locationRepository.save(location);
@@ -164,6 +168,10 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
 
         TripStudent saved = tripStudentRepository.save(tripStudent);
         return Optional.of(saved);
+    }
+
+    public Optional<Location> getCurrentLocation(Long vehicleId) {
+        return locationRepository.findLastLocation(vehicleId);
     }
 
 
