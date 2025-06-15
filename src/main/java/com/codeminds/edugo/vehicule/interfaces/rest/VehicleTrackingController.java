@@ -23,7 +23,6 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/vehicle-tracking")
 @Tag(name = "Vehicle Tracking", description = "Endpoints for managing vehicle tracking")
@@ -103,8 +102,8 @@ public class VehicleTrackingController{
      * Actualiza la ubicación de un vehículo en tiempo real.
      */
     @PostMapping("/locations")
-    public ResponseEntity<LocationResource> updateLocation(@RequestBody UpdateLocationResource resource) {
-        return commandService.handle(UpdateLocationCommandFromResourceAssembler.toCommandFromResource(resource))
+    public ResponseEntity<LocationResource> updateLocation(@RequestBody CreateLocationResource resource) {
+        return commandService.handle(CreateLocationCommandFromResourceAssembler.toCommandFromResource(resource))
                 .map(location -> new ResponseEntity<>(
                         LocationResourceFromEntityAssembler.toResourceFromEntity(location),
                         CREATED))
@@ -200,6 +199,27 @@ public class VehicleTrackingController{
     @GetMapping("/locations")
     public List<LocationResource> getAllLocations() {
         return locationRepository.findAll().stream()
+                .map(LocationResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(toList());
+    }
+
+    /**
+     * Devuelve la última ubicación registrada de un vehículo.
+     */
+    @GetMapping("/locations/current")
+    public ResponseEntity<LocationResource> getCurrentLocation(@RequestParam Long vehicleId) {
+        return commandService.getCurrentLocation(vehicleId)
+                .map(LocationResourceFromEntityAssembler::toResourceFromEntity)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Devuelve la lista de ubicaciones (ruta) asociada a un viaje específico.
+     */
+    @GetMapping("/locations/trip/{tripId}")
+    public List<LocationResource> getLocationsByTripId(@PathVariable Long tripId) {
+        return locationRepository.findByTrip_IdOrderByTimestampAsc(tripId).stream()
                 .map(LocationResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(toList());
     }
