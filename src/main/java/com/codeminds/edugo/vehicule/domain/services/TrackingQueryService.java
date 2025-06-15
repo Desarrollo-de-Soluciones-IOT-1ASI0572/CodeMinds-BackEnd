@@ -18,4 +18,6 @@ public interface TrackingQueryService {
     List<Trip> handle(GetPastTripsByDriverQuery query);
 
     List<TripStudent> handle(GetTripStudentsQuery query);
+
+    List<Location> handle(GetLocationsByTripIdQuery query);
 }
