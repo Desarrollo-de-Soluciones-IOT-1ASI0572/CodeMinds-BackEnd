@@ -29,4 +29,8 @@ public interface LocationRepository extends JpaRepository<Location, Integer> {
             LocalDateTime start,
             LocalDateTime end
     );
+
+    List<Location> findByTripIdOrderByTimestampAsc(Long tripId);
+
+    List<Location> findByTrip_IdOrderByTimestampAsc(Long tripId);
 }
