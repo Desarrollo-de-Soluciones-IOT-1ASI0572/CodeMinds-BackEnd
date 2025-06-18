@@ -1,9 +1,9 @@
 package com.codeminds.edugo.vehicule.interfaces.rest;
 
-
 import com.codeminds.edugo.vehicule.application.internal.commandservices.TrackingCommandServiceImpl;
 
 import com.codeminds.edugo.vehicule.domain.model.aggregates.Vehicle;
+import com.codeminds.edugo.vehicule.domain.model.commands.DeleteTripCommand;
 import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
 import com.codeminds.edugo.vehicule.domain.model.entities.TripStudent;
 import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.LocationRepository;
@@ -223,4 +223,17 @@ public class VehicleTrackingController{
                 .map(LocationResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(toList());
     }
+
+    @DeleteMapping("/trips/{id}")
+    public ResponseEntity<String> deleteTrip(@PathVariable Long id) {
+        DeleteTripCommand command = new DeleteTripCommand(id); // Crear el comando con el ID del viaje
+        boolean success = commandService.handle(command); // Llamamos al servicio para manejar la eliminación
+
+        if (success) {
+            return ResponseEntity.ok("Trip deleted successfully.");
+        } else {
+            return ResponseEntity.status(404).body("Trip not found.");
+        }
+    }
+
 }
