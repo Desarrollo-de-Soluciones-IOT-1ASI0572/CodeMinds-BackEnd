@@ -22,6 +22,6 @@ public interface TrackingCommandService {
 
     Optional<TripStudent> handle(CreateTripStudentCommand command);
 
-    Optional<Location> getCurrentLocation(Long vehicleId);
+    boolean handle(DeleteTripCommand command);
 
 }
