@@ -9,7 +9,7 @@ public class EndRouteCommandFromResourceAssembler {
     public static EndRouteCommand toCommandFromResource(EndRouteResource resource) {
         return new EndRouteCommand(
                 resource.tripId(),
-                LocalDateTime.now() // tiempo actual como hora de finalización
+                LocalDateTime.now()
         );
     }
 }
