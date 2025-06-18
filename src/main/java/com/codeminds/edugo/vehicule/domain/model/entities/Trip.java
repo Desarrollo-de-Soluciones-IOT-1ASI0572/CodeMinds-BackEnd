@@ -36,6 +36,10 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TripStudent> students = new ArrayList<>();
 
+    // NUEVA RELACIÓN AGREGADA
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Location> locations = new ArrayList<>();
+
     public Trip(Vehicle vehicle, String origin, String destination) {
         this.vehicle = vehicle;
         this.origin = origin;
@@ -59,6 +63,12 @@ public class Trip {
         this.students.add(student);
         student.setTrip(this);
     }
+
+    public void addLocation(Location location) {
+        this.locations.add(location);
+        location.setTrip(this);
+    }
+
     // === GETTERS MANUALES ===
     public Long getId() {
         return id;
@@ -86,5 +96,9 @@ public class Trip {
 
     public List<TripStudent> getStudents() {
         return students;
+    }
+
+    public List<Location> getLocations() {
+        return locations;
     }
 }
