@@ -13,6 +13,7 @@ import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.
 import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripStudentRepository;
 import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.VehicleRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -172,6 +173,35 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
 
     public Optional<Location> getCurrentLocation(Long vehicleId) {
         return locationRepository.findLastLocation(vehicleId);
+    }
+
+    /*@Override
+    public boolean handle(DeleteTripCommand command) {
+        Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+
+        if (optionalTrip.isPresent()) {
+            tripRepository.delete(optionalTrip.get());
+            return true;
+        }
+        return false;
+    }*/
+
+    @Transactional
+    @Override
+    public boolean handle(DeleteTripCommand command) {
+        Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+
+        if (optionalTrip.isPresent()) {
+            Trip trip = optionalTrip.get();
+
+            // Fuerza a cargar relaciones para asegurar eliminación correcta
+            trip.getLocations().size();
+            trip.getStudents().size();
+
+            tripRepository.delete(trip);
+            return true;
+        }
+        return false;
     }
 
 
