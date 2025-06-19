@@ -73,5 +73,8 @@ public class TripStudent {
     public LocalDateTime getExitedAt() {
         return exitedAt;
     }
+    public Trip getTrip() {
+        return this.trip;
+    }
 
 }

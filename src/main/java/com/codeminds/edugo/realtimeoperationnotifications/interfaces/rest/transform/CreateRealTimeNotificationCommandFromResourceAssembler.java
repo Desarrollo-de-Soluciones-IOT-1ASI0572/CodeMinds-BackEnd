@@ -6,6 +6,12 @@ import com.codeminds.edugo.realtimeoperationnotifications.interfaces.rest.resour
 public class CreateRealTimeNotificationCommandFromResourceAssembler {
     public static CreateRealTimeNotificationCommand toCommandFromResource(CreateRealTimeNotificationResource resource) {
         return new CreateRealTimeNotificationCommand(
-                resource.eventType(), resource.description(), resource.userType(), resource.userId());
+                resource.eventType(),
+                resource.description(),
+                resource.userType(),
+                resource.userId(),
+                resource.tripId(),
+                resource.studentId()
+        );
     }
 }

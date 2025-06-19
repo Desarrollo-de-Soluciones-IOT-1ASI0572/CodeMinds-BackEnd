@@ -15,4 +15,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findByVehicle_DriverIdAndEndTimeIsNotNull(Integer driverId);
 
     Trip findTopByVehicle_IdAndStartTimeIsNullOrderByIdDesc(Long vehicleId);
+
+    List<Trip> findByEndTimeIsNotNull();
 }

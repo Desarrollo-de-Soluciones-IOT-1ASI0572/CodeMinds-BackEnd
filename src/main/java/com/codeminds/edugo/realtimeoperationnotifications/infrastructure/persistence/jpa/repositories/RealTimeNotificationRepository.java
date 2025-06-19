@@ -13,4 +13,8 @@ public interface RealTimeNotificationRepository extends JpaRepository<RealTimeNo
     List<RealTimeNotification> findByUserType(String userType);
 
     List<RealTimeNotification> findByUserId(Long userType);
+    List<RealTimeNotification> findByStudentId(Long studentId);
+    List<RealTimeNotification> findByTripId(Long tripId);
+    List<RealTimeNotification> findByUserIdAndTripId(Long userId, Long tripId);
+
 }

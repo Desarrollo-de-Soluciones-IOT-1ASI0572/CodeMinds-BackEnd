@@ -54,4 +54,9 @@ public class TrackingQueryServiceImpl implements TrackingQueryService {
     public List<TripStudent> handle(GetTripStudentsQuery query) {
         return tripStudentRepository.findByTrip_Id(query.tripId());
     }
+
+    @Override
+    public List<Location> handle(GetLocationsByTripIdQuery query) {
+        return locationRepository.findByTripIdOrderByTimestampAsc(query.tripId());
+    }
 }

@@ -23,7 +23,10 @@ public class RealTimeNotificationCommandServiceImpl implements RealTimeNotificat
                 command.eventType(),
                 command.description(),
                 command.userType(),
-                command.userId());
+                command.userId(),
+                command.tripId(),
+                command.studentId()
+        );
 
         var createdRealTimeNotification = realTimeNotificationRepository.save(realTimeNotification);
 
