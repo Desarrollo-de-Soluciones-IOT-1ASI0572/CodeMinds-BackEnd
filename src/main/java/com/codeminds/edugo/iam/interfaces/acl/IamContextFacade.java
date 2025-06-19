@@ -106,4 +106,13 @@ public class IamContextFacade {
         return userQueryService.handle(getUserByIdQuery);
     }
 
+    public String fetchUserRoleByUsername(String username) {
+        var getUserByUsernameQuery = new GetUserByUsernameQuery(username);
+        var result = userQueryService.handle(getUserByUsernameQuery);
+        if (result.isEmpty())
+            return Role.getDefaultRole().getStringName();
+        var role = result.get().getRoles().stream().findFirst().orElse(Role.getDefaultRole());
+        return role.getStringName();
+    }
+
 }
