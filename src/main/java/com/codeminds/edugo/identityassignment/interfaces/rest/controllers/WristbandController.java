@@ -1,6 +1,5 @@
 package com.codeminds.edugo.identityassignment.interfaces.rest.controllers;
 
-import com.codeminds.edugo.identityassignment.domain.models.commands.entities.CreateWristbandCommand;
 import com.codeminds.edugo.identityassignment.domain.models.commands.entities.DeleteWristbandCommand;
 import com.codeminds.edugo.identityassignment.domain.models.entities.Wristband;
 import com.codeminds.edugo.identityassignment.domain.models.queries.entities.wristband.GetAllWristbandsQuery;
