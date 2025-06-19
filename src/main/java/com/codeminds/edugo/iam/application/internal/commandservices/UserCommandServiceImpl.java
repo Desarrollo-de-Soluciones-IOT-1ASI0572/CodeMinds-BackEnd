@@ -1,10 +1,8 @@
 package com.codeminds.edugo.iam.application.internal.commandservices;
 
-import com.codeminds.edugo.iam.application.internal.outboundservices.acl.ExternalProfileRoleService;
 import com.codeminds.edugo.iam.application.internal.outboundservices.hashing.HashingService;
 import com.codeminds.edugo.iam.application.internal.outboundservices.tokens.TokenService;
 import com.codeminds.edugo.iam.domain.exceptions.InvalidPasswordException;
-import com.codeminds.edugo.iam.domain.exceptions.RoleNotFoundException;
 import com.codeminds.edugo.iam.domain.exceptions.UserNotFoundInSignInException;
 import com.codeminds.edugo.iam.domain.model.aggregates.User;
 import com.codeminds.edugo.iam.domain.model.commands.SignInCommand;
@@ -32,16 +30,13 @@ public class UserCommandServiceImpl implements UserCommandService {
     private final HashingService hashingService;
     private final TokenService tokenService;
     private final RoleRepository roleRepository;
-    private final ExternalProfileRoleService externalProfileRoleService;
 
     public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService,
-            TokenService tokenService, RoleRepository roleRepository,
-            ExternalProfileRoleService externalProfileRoleService) {
+            TokenService tokenService, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.hashingService = hashingService;
         this.tokenService = tokenService;
         this.roleRepository = roleRepository;
-        this.externalProfileRoleService = externalProfileRoleService;
     }
 
     /**
@@ -81,18 +76,9 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (userRepository.existsByUsername(command.username()))
             throw new RuntimeException("Username already exists");
         var roles = command.roles().stream().map(role -> roleRepository.findByName(role.getName())
-                .orElseThrow(() -> new RoleNotFoundException(role.getStringName()))).toList();
+                .orElseThrow(() -> new RuntimeException("Role name not found"))).toList();
         var user = new User(command.username(), hashingService.encode(command.password()), roles);
         userRepository.save(user);
-        // Create farmer or advisor depending on the role
-        roles.forEach(role -> {
-            if (role.getStringName().equals("ROLE_DRIVER")) {
-                externalProfileRoleService.createDriver(user.getId(), user);
-            }
-            if (role.getStringName().equals("ROLE_PARENT")) {
-                externalProfileRoleService.createParent(user.getId(), user);
-            }
-        });
         return userRepository.findByUsername(command.username());
     }
 }
