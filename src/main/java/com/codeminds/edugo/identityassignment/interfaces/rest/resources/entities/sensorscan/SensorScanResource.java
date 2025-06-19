@@ -5,9 +5,17 @@ import com.codeminds.edugo.identityassignment.domain.models.valueobjects.ScanTyp
 
 import java.time.LocalDateTime;
 
-public record SensorScanResource(
+/*public record SensorScanResource(
         Long id,
         LocalDateTime scanTime,
         ScanType scanType,
         Wristband wristband
+) {}*/
+
+public record SensorScanResource(
+        Long id,
+        LocalDateTime scanTime,
+        ScanType scanType,
+        Long wristbandId
 ) {}
+

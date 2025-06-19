@@ -1,4 +1,4 @@
-package com.codeminds.edugo.shared.infrastructure.configuration;
+/*package com.codeminds.edugo.shared.infrastructure.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -16,3 +16,4 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 }
+*/

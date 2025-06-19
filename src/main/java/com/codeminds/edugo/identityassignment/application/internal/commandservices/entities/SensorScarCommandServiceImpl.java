@@ -5,6 +5,7 @@ import com.codeminds.edugo.identityassignment.domain.models.commands.entities.De
 import com.codeminds.edugo.identityassignment.domain.models.entities.SensorScan;
 import com.codeminds.edugo.identityassignment.domain.services.entities.sensorscan.SensorScanCommandService;
 import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.entities.SensorScanRepository;
+import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.entities.WristbandRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,16 +16,25 @@ import java.util.Optional;
 public class SensorScarCommandServiceImpl implements SensorScanCommandService {
     private final SensorScanRepository sensorScanRepository;
 
-    public SensorScarCommandServiceImpl(SensorScanRepository sensorScanRepository) {
+    private final WristbandRepository wristbandRepository;
+
+
+    public SensorScarCommandServiceImpl(SensorScanRepository sensorScanRepository, WristbandRepository wristbandRepository) {
         this.sensorScanRepository = sensorScanRepository;
+        this.wristbandRepository = wristbandRepository;
     }
 
     @Override
     public Optional<SensorScan> handle(CreateSensorScanCommand command) {
+        var wristband = wristbandRepository.findById(command.wristbandId())
+                .orElseThrow(() -> new IllegalArgumentException("Wristband not found"));
+
         var sensorScan = new SensorScan(
                 command.scanType(),
-                command.wristband(),
-                command.scanTime());
+                wristband,
+                command.scanTime()
+        );
+
         var createdSensorScan = sensorScanRepository.save(sensorScan);
         return Optional.of(createdSensorScan);
     }

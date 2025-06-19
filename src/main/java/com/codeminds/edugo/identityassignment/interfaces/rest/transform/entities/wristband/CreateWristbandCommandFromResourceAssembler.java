@@ -8,7 +8,8 @@ public class CreateWristbandCommandFromResourceAssembler {
         return new CreateWristbandCommand(
                 resource.rfidCode(),
                 resource.wristbandStatus(),
-                resource.student().getId()
+                resource.studentId()
         );
     }
 }
+

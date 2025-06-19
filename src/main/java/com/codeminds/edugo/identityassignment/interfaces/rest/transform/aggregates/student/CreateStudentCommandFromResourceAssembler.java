@@ -5,10 +5,12 @@ import com.codeminds.edugo.identityassignment.interfaces.rest.resources.aggregat
 
 public class CreateStudentCommandFromResourceAssembler {
     public static CreateStudentCommand toCommandFromResource(CreateStudentResource resource){
-        return new CreateStudentCommand(resource.name(),
+        return new CreateStudentCommand(
+                resource.name(),
                 resource.lastName(),
                 resource.homeAddress(),
                 resource.schoolAddress(),
-                resource.StudentPhotoUrl());
+                resource.studentPhotoUrl(),
+                resource.parentProfileId());
     }
 }

@@ -5,5 +5,6 @@ public record CreateStudentCommand (
         String lastName,
         String homeAddress,
         String schoolAddress,
-        String studentPhotoUrl
-){}
+        String studentPhotoUrl,
+        Long parentProfileId
+) {}

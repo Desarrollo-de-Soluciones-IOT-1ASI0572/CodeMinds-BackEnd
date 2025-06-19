@@ -5,6 +5,6 @@ import com.codeminds.edugo.identityassignment.domain.models.valueobjects.Wristba
 
 public record CreateWristbandResource(
         String rfidCode,
-        WristbandStatus wristbandStatus,
-        Student student
+        String wristbandStatus,
+        Long studentId
 ) {}

@@ -5,8 +5,9 @@ import com.codeminds.edugo.identityassignment.domain.models.valueobjects.ScanTyp
 
 import java.time.LocalDateTime;
 
-public record CreateSensorScanCommand (
+public record CreateSensorScanCommand(
         ScanType scanType,
         LocalDateTime scanTime,
-        Wristband wristband
-){}
+        Long wristbandId
+) {}
+

@@ -1,10 +1,10 @@
 package com.codeminds.edugo.identityassignment.interfaces.rest.resources.aggregates.student;
 
-public record CreateStudentResource(
+public record StudentDto(
+        Long id,
         String name,
         String lastName,
         String homeAddress,
         String schoolAddress,
-        String studentPhotoUrl,
-        Long parentProfileId
+        String studentPhotoUrl
 ) {}

@@ -9,7 +9,7 @@ public class SensorScanResourceFromEntityAssembler {
                 entity.getId(),
                 entity.getScanTime(),
                 entity.getScanType(),
-                entity.getWristband()
+                entity.getWristband().getId()
         );
     }
 }

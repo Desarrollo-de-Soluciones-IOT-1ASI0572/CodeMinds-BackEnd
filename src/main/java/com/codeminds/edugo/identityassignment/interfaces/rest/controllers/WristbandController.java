@@ -12,8 +12,8 @@ import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities.wristband.WristbandResource;
 
 
-import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.WristbandFromEntityAssembler;
 import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.CreateWristbandCommandFromResourceAssembler;
+import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.WristbandResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +43,7 @@ public class WristbandController {
 
         return wristband.map(w ->
                         new ResponseEntity<>(
-                                List.of(WristbandFromEntityAssembler.toResourceFromEntity(w)),
+                                List.of(WristbandResourceFromEntityAssembler.toResourceFromEntity(w)),
                                 CREATED))
                 .orElse(ResponseEntity.badRequest().build());
     }
@@ -53,7 +53,7 @@ public class WristbandController {
         var getAllWristbands = new GetAllWristbandsQuery();
         var wristbands = wristbandQueryService.handle(getAllWristbands);
         var wristbandResources = wristbands.stream()
-                .map(WristbandFromEntityAssembler::toResourceFromEntity)
+                .map(WristbandResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(wristbandResources);
     }
@@ -63,7 +63,7 @@ public class WristbandController {
         return wristbandQueryService.handle(new GetWristbandsByIdQuery(id))
                 .stream()
                 .findFirst()
-                .map(WristbandFromEntityAssembler::toResourceFromEntity)
+                .map(WristbandResourceFromEntityAssembler::toResourceFromEntity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -72,7 +72,7 @@ public class WristbandController {
     public ResponseEntity<List<WristbandResource>> getWristbandsByStudentId(@PathVariable Long studentId) {
         var wristbands = wristbandQueryService.handle(new GetWristbandsByStudentIdQuery(studentId));
         var wristbandResources = wristbands.stream()
-                .map(WristbandFromEntityAssembler::toResourceFromEntity)
+                .map(WristbandResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(wristbandResources);
     }
@@ -82,7 +82,7 @@ public class WristbandController {
         var wristbandStatus = com.codeminds.edugo.identityassignment.domain.models.valueobjects.WristbandStatus.valueOf(status.toUpperCase());
         var wristbands = wristbandQueryService.handle(new GetWristbandsByWristbandStatusQuery(wristbandStatus));
         var wristbandResources = wristbands.stream()
-                .map(WristbandFromEntityAssembler::toResourceFromEntity)
+                .map(WristbandResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(wristbandResources);
     }
