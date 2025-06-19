@@ -29,4 +29,12 @@ public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> 
     @Column(nullable = false)
     private Date updatedAt;
 
+    public void setCreatedAt() {
+        this.createdAt = new Date();
+    }
+
+    public void setUpdatedAt() {
+        this.updatedAt = new Date();
+    }
+
 }
