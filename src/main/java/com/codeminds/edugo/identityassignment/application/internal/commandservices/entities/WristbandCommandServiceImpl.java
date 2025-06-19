@@ -9,29 +9,25 @@ import com.codeminds.edugo.identityassignment.domain.models.commands.entities.De
 import com.codeminds.edugo.identityassignment.domain.models.entities.Wristband;
 import com.codeminds.edugo.identityassignment.domain.services.entities.wristband.WristbandCommandService;
 import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.entities.WristbandRepository;
-import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
+
 
 @Service
 public class WristbandCommandServiceImpl implements WristbandCommandService {
 
     private final WristbandRepository wristbandRepository;
-    private final StudentRepository studentRepository;
 
-    public WristbandCommandServiceImpl(WristbandRepository wristbandRepository, StudentRepository studentRepository) {
+    public WristbandCommandServiceImpl(WristbandRepository wristbandRepository) {
         this.wristbandRepository = wristbandRepository;
-        this.studentRepository = studentRepository;
     }
 
     @Override
     public Optional<Wristband> handle(CreateWristbandCommand command) {
-        return studentRepository.findById(command.studentId())
-                .map(student -> {
-                    var wristband = new Wristband();
-                    wristband.setRfidCode(command.rfidCode());
-                    wristband.setWristbandStatus(command.wristbandStatus());
-                    wristband.setStudent(student);
-                    return wristbandRepository.save(wristband);
-                });
+        var wristband = new Wristband(
+            command.rfidCode(),
+            command.wristbandStatus(),
+            command.student());
+        var createdWristband = wristbandRepository.save(wristband);
+        return Optional.of(createdWristband);
     }
 
     @Override

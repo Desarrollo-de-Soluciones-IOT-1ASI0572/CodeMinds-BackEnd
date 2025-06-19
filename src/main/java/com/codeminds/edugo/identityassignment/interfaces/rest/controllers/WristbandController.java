@@ -11,8 +11,10 @@ import com.codeminds.edugo.identityassignment.domain.services.entities.wristband
 import com.codeminds.edugo.identityassignment.domain.services.entities.wristband.WristbandQueryService;
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities.wristband.CreateWristbandResource;
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities.wristband.WristbandResource;
-import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.CreateWristbandFromResourceAssembler;
+
+
 import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.WristbandFromEntityAssembler;
+import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.CreateWristbandCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +40,7 @@ public class WristbandController {
     public ResponseEntity<List<WristbandResource>> createWristband(
             @RequestBody CreateWristbandResource resource) {
         Optional<Wristband> wristband = wristbandCommandService
-                .handle(CreateWristbandFromResourceAssembler.toCommandFromResource(resource));
+                .handle(CreateWristbandCommandFromResourceAssembler.toCommandFromResource(resource));
 
         return wristband.map(w ->
                         new ResponseEntity<>(
@@ -78,7 +80,8 @@ public class WristbandController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<WristbandResource>> getWristbandsByStatus(@PathVariable String status) {
-        var wristbands = wristbandQueryService.handle(new GetWristbandsByWristbandStatusQuery(status));
+        var wristbandStatus = com.codeminds.edugo.identityassignment.domain.models.valueobjects.WristbandStatus.valueOf(status.toUpperCase());
+        var wristbands = wristbandQueryService.handle(new GetWristbandsByWristbandStatusQuery(wristbandStatus));
         var wristbandResources = wristbands.stream()
                 .map(WristbandFromEntityAssembler::toResourceFromEntity)
                 .toList();
