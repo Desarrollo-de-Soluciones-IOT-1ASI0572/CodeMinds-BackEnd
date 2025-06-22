@@ -11,7 +11,12 @@ import java.util.Optional;
 @Repository
 public interface WristbandRepository extends JpaRepository<Wristband, Long> {
     List<Wristband> findAll();
+
     Optional<Wristband> findById(Long id);
+
     Optional<Wristband> findByStudentId(Long studentId);
+
     List<Wristband> findByWristbandStatus(WristbandStatus wristbandStatus);
+
+    Optional<Wristband> findByRfidCode(String rfidCode);
 }

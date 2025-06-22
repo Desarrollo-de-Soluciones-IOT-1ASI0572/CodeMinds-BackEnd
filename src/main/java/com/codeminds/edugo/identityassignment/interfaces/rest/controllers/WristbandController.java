@@ -8,9 +8,9 @@ import com.codeminds.edugo.identityassignment.domain.models.queries.entities.wri
 import com.codeminds.edugo.identityassignment.domain.models.queries.entities.wristband.GetWristbandsByWristbandStatusQuery;
 import com.codeminds.edugo.identityassignment.domain.services.entities.wristband.WristbandCommandService;
 import com.codeminds.edugo.identityassignment.domain.services.entities.wristband.WristbandQueryService;
+import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.entities.WristbandRepository;
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities.wristband.CreateWristbandResource;
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities.wristband.WristbandResource;
-
 
 import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.CreateWristbandCommandFromResourceAssembler;
 import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.wristband.WristbandResourceFromEntityAssembler;
@@ -29,10 +29,13 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class WristbandController {
     private final WristbandCommandService wristbandCommandService;
     private final WristbandQueryService wristbandQueryService;
+    private final WristbandRepository wristbandRepository;
 
-    public WristbandController(WristbandCommandService wristbandCommandService, WristbandQueryService wristbandQueryService) {
+    public WristbandController(WristbandCommandService wristbandCommandService,
+            WristbandQueryService wristbandQueryService, WristbandRepository wristbandRepository) {
         this.wristbandCommandService = wristbandCommandService;
         this.wristbandQueryService = wristbandQueryService;
+        this.wristbandRepository = wristbandRepository;
     }
 
     @PostMapping("/create")
@@ -41,10 +44,9 @@ public class WristbandController {
         Optional<Wristband> wristband = wristbandCommandService
                 .handle(CreateWristbandCommandFromResourceAssembler.toCommandFromResource(resource));
 
-        return wristband.map(w ->
-                        new ResponseEntity<>(
-                                List.of(WristbandResourceFromEntityAssembler.toResourceFromEntity(w)),
-                                CREATED))
+        return wristband.map(w -> new ResponseEntity<>(
+                List.of(WristbandResourceFromEntityAssembler.toResourceFromEntity(w)),
+                CREATED))
                 .orElse(ResponseEntity.badRequest().build());
     }
 
@@ -79,7 +81,8 @@ public class WristbandController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<WristbandResource>> getWristbandsByStatus(@PathVariable String status) {
-        var wristbandStatus = com.codeminds.edugo.identityassignment.domain.models.valueobjects.WristbandStatus.valueOf(status.toUpperCase());
+        var wristbandStatus = com.codeminds.edugo.identityassignment.domain.models.valueobjects.WristbandStatus
+                .valueOf(status.toUpperCase());
         var wristbands = wristbandQueryService.handle(new GetWristbandsByWristbandStatusQuery(wristbandStatus));
         var wristbandResources = wristbands.stream()
                 .map(WristbandResourceFromEntityAssembler::toResourceFromEntity)
@@ -91,5 +94,13 @@ public class WristbandController {
     public ResponseEntity<Void> deleteWristband(@PathVariable Long id) {
         wristbandCommandService.handle(new DeleteWristbandCommand(id));
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/rfid/{rfidCode}")
+    public ResponseEntity<WristbandResource> getWristbandByRfidCode(@PathVariable String rfidCode) {
+        return wristbandRepository.findByRfidCode(rfidCode)
+                .map(WristbandResourceFromEntityAssembler::toResourceFromEntity)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
