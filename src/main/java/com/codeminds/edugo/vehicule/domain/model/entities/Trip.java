@@ -1,5 +1,6 @@
 package com.codeminds.edugo.vehicule.domain.model.entities;
 
+import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
 import com.codeminds.edugo.vehicule.domain.model.aggregates.Vehicle;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -40,8 +41,13 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
 
-    public Trip(Vehicle vehicle, String origin, String destination) {
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "driver_id", nullable = false)
+    private Profile driver;
+
+    public Trip(Vehicle vehicle, Profile driver, String origin, String destination) {
         this.vehicle = vehicle;
+        this.driver = driver;
         this.origin = origin;
         this.destination = destination;
         //this.startTime = LocalDateTime.now(); // por defecto
@@ -100,5 +106,9 @@ public class Trip {
 
     public List<Location> getLocations() {
         return locations;
+    }
+
+    public Profile getDriver() {
+        return driver;
     }
 }

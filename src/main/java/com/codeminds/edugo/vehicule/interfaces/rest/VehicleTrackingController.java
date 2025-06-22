@@ -1,5 +1,7 @@
 package com.codeminds.edugo.vehicule.interfaces.rest;
 
+import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
+import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.repositories.ProfileRepository;
 import com.codeminds.edugo.vehicule.application.internal.commandservices.TrackingCommandServiceImpl;
 
 import com.codeminds.edugo.vehicule.domain.model.aggregates.Vehicle;
@@ -42,13 +44,16 @@ public class VehicleTrackingController{
 
     private final LocationRepository locationRepository;
 
+    private final ProfileRepository profileRepository;
 
-    public VehicleTrackingController(TrackingCommandServiceImpl commandService, TripRepository tripRepository, VehicleRepository vehicleRepository, TripStudentRepository tripStudentRepository, LocationRepository locationRepository) {
+
+    public VehicleTrackingController(TrackingCommandServiceImpl commandService, TripRepository tripRepository, VehicleRepository vehicleRepository, TripStudentRepository tripStudentRepository, LocationRepository locationRepository, ProfileRepository profileRepository) {
         this.commandService = commandService;
         this.tripRepository = tripRepository;
         this.vehicleRepository = vehicleRepository;
         this.tripStudentRepository = tripStudentRepository;
         this.locationRepository = locationRepository;
+        this.profileRepository = profileRepository;
     }
 
     /**
@@ -72,7 +77,15 @@ public class VehicleTrackingController{
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(resource.vehicleId());
         if (optionalVehicle.isEmpty()) return ResponseEntity.badRequest().build();
 
-        Trip trip = new Trip(optionalVehicle.get(), resource.origin(), resource.destination());
+        Optional<Profile> optionalDriver = profileRepository.findById(resource.driverId());
+        if (optionalDriver.isEmpty()) return ResponseEntity.badRequest().build();
+
+        Trip trip = new Trip(
+                optionalVehicle.get(),
+                optionalDriver.get(),
+                resource.origin(),
+                resource.destination()
+        );
         Trip savedTrip = tripRepository.save(trip);
 
         return new ResponseEntity<>(TripResourceFromEntityAssembler.toResourceFromEntity(savedTrip), HttpStatus.CREATED);
