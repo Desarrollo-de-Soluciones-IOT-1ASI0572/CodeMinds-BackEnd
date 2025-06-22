@@ -50,11 +50,13 @@ public class AuthenticationController {
         if (authenticatedUser.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        var user = authenticatedUser.get().getLeft();
+        var token = authenticatedUser.get().getRight();
+        var role = user.getRole();
         var authenticatedUserResource = AuthenticatedUserResourceFromEntityAssembler
-                .toResourceFromEntity(authenticatedUser.get().getLeft(), authenticatedUser.get().getRight());
+                .toResourceFromEntity(user, token, role);
         return ResponseEntity.ok(authenticatedUserResource);
     }
-
     /**
      * Handles the sign-up request.
      * 

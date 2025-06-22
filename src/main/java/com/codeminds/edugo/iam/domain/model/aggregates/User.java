@@ -77,4 +77,16 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         return this;
     }
 
+    /**
+     * Get the names of the roles associated with the user
+     *
+     * @return a list of role names
+     */
+    public String getRole() {
+        return this.roles.stream()
+                .findFirst()
+                .map(role -> role.getName().toString()) // O usa getValue() si existe
+                .orElse(null);
+    }
+
 }
