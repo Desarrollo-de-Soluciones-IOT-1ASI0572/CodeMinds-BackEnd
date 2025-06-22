@@ -11,6 +11,7 @@ public class CreateStudentCommandFromResourceAssembler {
                 resource.homeAddress(),
                 resource.schoolAddress(),
                 resource.studentPhotoUrl(),
-                resource.parentProfileId());
+                resource.parentProfileId(),
+                resource.driverId());
     }
 }
