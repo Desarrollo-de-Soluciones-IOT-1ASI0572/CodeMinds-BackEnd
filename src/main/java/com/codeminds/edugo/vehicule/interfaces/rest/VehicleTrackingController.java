@@ -309,4 +309,11 @@ public class VehicleTrackingController{
                 .collect(toList());
     }
 
+    @GetMapping("/trips/completed/driver/{driverId}")
+    public List<TripResource> getCompletedTripsByDriver(@PathVariable Long driverId) {
+        return tripRepository.findByEndTimeIsNotNullAndVehicle_DriverId(driverId).stream()
+                .map(TripResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(toList());
+    }
+
 }
