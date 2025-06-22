@@ -23,8 +23,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -334,5 +336,21 @@ public class VehicleTrackingController{
                 .map(TripResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(toList());
     }
+
+    @GetMapping("/trips/active/driver/{driverId}")
+    public ResponseEntity<List<ActiveTripResource>> getActiveTripByDriver(@PathVariable Long driverId) {
+        List<Trip> activeTrips = tripRepository.findActiveTripByDriverId(driverId)
+                .map(Collections::singletonList) // Convierte el Optional<Trip> a List<Trip>
+                .orElse(Collections.emptyList()); // Si no hay viaje, devuelve lista vacía
+
+        List<ActiveTripResource> response = activeTrips.stream()
+                .map(ActiveTripResourceAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
 
 }

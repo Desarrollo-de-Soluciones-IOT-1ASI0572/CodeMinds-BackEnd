@@ -2,6 +2,8 @@ package com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories
 
 import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,4 +22,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     // En TripRepository.java
     List<Trip> findByEndTimeIsNotNullAndVehicle_DriverId(Long driverId);
+
+    @Query("SELECT t FROM Trip t WHERE t.endTime IS NULL")
+    Optional<Trip> findActiveTripByDriverId(@Param("driverId") Long driverId);
 }
