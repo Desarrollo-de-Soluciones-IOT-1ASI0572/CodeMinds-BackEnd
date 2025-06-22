@@ -1,5 +1,6 @@
 package com.codeminds.edugo.identityassignment.application.internal.commandservices.aggregates;
 
+import com.codeminds.edugo.identityassignment.application.internal.outboundservices.acl.ExternalProfileService;
 import com.codeminds.edugo.identityassignment.domain.models.aggregates.Student;
 import com.codeminds.edugo.identityassignment.domain.models.commands.aggregates.CreateStudentCommand;
 import com.codeminds.edugo.identityassignment.domain.models.commands.aggregates.DeleteStudentCommand;
@@ -17,9 +18,12 @@ public class StudentCommandServiceImpl implements StudentCommandService {
 
     private final ProfileRepository profileRepository;
 
-    public StudentCommandServiceImpl(StudentRepository studentRepository, ProfileRepository profileRepository) {
+    private final ExternalProfileService externalProfileService;
+
+    public StudentCommandServiceImpl(StudentRepository studentRepository, ProfileRepository profileRepository, ExternalProfileService  externalProfileService) {
         this.studentRepository = studentRepository;
         this.profileRepository = profileRepository;
+        this.externalProfileService = externalProfileService;
     }
 
     /*@Override
@@ -37,27 +41,31 @@ public class StudentCommandServiceImpl implements StudentCommandService {
     }*/
     @Override
     public Optional<Student> handle(CreateStudentCommand command) {
-        // Busca el perfil del padre
         Profile parentProfile = profileRepository.findById(command.parentProfileId())
-                .orElseThrow(() -> new RuntimeException("Parent profile not found with id: " + command.parentProfileId()));
+                .orElseThrow(() -> new RuntimeException("Parent profile not found"));
 
-        // Validar que el perfil tenga rol de padre
         if (!"ROLE_PARENT".equals(parentProfile.getRole())) {
-            throw new RuntimeException("Profile with id " + command.parentProfileId() + " is not a parent");
+            throw new RuntimeException("Profile is not a parent");
         }
 
-        // Crear el estudiante con el parent profile
+        Profile driverProfile = profileRepository.findById(command.driverId())
+                .orElseThrow(() -> new RuntimeException("Driver profile not found"));
+
+        if (!"ROLE_DRIVER".equals(driverProfile.getRole())) {
+            throw new RuntimeException("Profile is not a driver");
+        }
+
         var student = new Student(
                 command.name(),
                 command.lastName(),
                 command.homeAddress(),
                 command.schoolAddress(),
                 command.studentPhotoUrl(),
-                parentProfile);  // Asignar el parent profile
+                parentProfile,
+                command.driverId()
+        );
 
-        // Guardar y retornar el estudiante
-        var createdStudent = studentRepository.save(student);
-        return Optional.of(createdStudent);
+        return Optional.of(studentRepository.save(student));
     }
 
     @Override

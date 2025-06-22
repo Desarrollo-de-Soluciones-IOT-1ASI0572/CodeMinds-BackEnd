@@ -36,6 +36,9 @@ public class Student extends AuditableAbstractAggregateRoot {
     @JoinColumn(name = "parent_profile_id", nullable = false)
     private Profile parentProfile;
 
+    @Column(name = "driver_profile_id")
+    private Long driverId;
+
     @EqualsAndHashCode.Exclude
     @OneToOne(mappedBy = "student", optional = true)
     private Wristband wristband;
@@ -45,13 +48,14 @@ public class Student extends AuditableAbstractAggregateRoot {
     }
 
     public Student(String name, String lastName, String homeAddress,
-                   String schoolAddress, String studentPhotoUrl, Profile parentProfile) {
+                   String schoolAddress, String studentPhotoUrl, Profile parentProfile, Long driverId) {
         this.name = name;
         this.lastName = lastName;
         this.homeAddress = homeAddress;
         this.schoolAddress = schoolAddress;
         this.studentPhotoUrl = studentPhotoUrl;
         this.parentProfile = parentProfile; // ← Añadir esto
+        this.driverId = driverId;
         this.setCreatedAt();
         this.setUpdatedAt();
     }
