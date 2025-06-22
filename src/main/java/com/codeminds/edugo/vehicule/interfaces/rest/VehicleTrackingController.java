@@ -18,6 +18,7 @@ import com.codeminds.edugo.vehicule.interfaces.rest.transform.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -280,7 +281,12 @@ public class VehicleTrackingController{
             }
 
             // 2. Buscar viaje activo
-            TripStudent activeTrip = tripStudentRepository.findActiveByStudentId(studentId);
+            TripStudent activeTrip = tripStudentRepository
+                    .findActiveByStudentIdOrdered(studentId, PageRequest.of(0, 1))
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
             if (activeTrip == null || activeTrip.getTrip() == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("No active trip found for student");

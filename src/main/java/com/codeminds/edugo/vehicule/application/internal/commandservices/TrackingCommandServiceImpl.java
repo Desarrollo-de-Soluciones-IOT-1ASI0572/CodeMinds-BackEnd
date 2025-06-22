@@ -1,5 +1,7 @@
 package com.codeminds.edugo.vehicule.application.internal.commandservices;
 
+import com.codeminds.edugo.identityassignment.domain.models.aggregates.Student;
+import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
 import com.codeminds.edugo.shared.domain.model.bus.DomainEventPublisher;
 import com.codeminds.edugo.vehicule.domain.events.*;
 import com.codeminds.edugo.vehicule.domain.model.aggregates.Vehicle;
@@ -28,14 +30,17 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
     private final TripStudentRepository tripStudentRepository;
     private final DomainEventPublisher eventPublisher;
 
+    private final StudentRepository studentRepository;
+
     private static final double SPEED_LIMIT = 60.0;
 
-    public TrackingCommandServiceImpl(LocationRepository locationRepository, VehicleRepository vehicleRepository, TripRepository tripRepository, TripStudentRepository tripStudentRepository, DomainEventPublisher eventPublisher) {
+    public TrackingCommandServiceImpl(LocationRepository locationRepository, VehicleRepository vehicleRepository, TripRepository tripRepository, TripStudentRepository tripStudentRepository, DomainEventPublisher eventPublisher, StudentRepository studentRepository) {
         this.locationRepository = locationRepository;
         this.vehicleRepository = vehicleRepository;
         this.tripRepository = tripRepository;
         this.tripStudentRepository = tripStudentRepository;
         this.eventPublisher = eventPublisher;
+        this.studentRepository = studentRepository;
     }
 
     @Override
@@ -156,20 +161,24 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
 
     @Override
     public Optional<TripStudent> handle(CreateTripStudentCommand command) {
-
         TripStudent existing = tripStudentRepository.findByTrip_IdAndStudentId(command.tripId(), command.studentId());
         if (existing != null) return Optional.of(existing);
 
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-        if (optionalTrip.isEmpty()) return Optional.empty();
+        Optional<Student> optionalStudent = studentRepository.findById(command.studentId());
+
+        if (optionalTrip.isEmpty() || optionalStudent.isEmpty()) return Optional.empty();
 
         Trip trip = optionalTrip.get();
-        TripStudent tripStudent = new TripStudent(command.studentId());
+        Student student = optionalStudent.get();
+
+        TripStudent tripStudent = new TripStudent(student);
         trip.addStudent(tripStudent);
 
         TripStudent saved = tripStudentRepository.save(tripStudent);
         return Optional.of(saved);
     }
+
 
     public Optional<Location> getCurrentLocation(Long vehicleId) {
         return locationRepository.findLastLocation(vehicleId);
