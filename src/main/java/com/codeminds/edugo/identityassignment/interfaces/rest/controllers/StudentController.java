@@ -4,6 +4,7 @@ import com.codeminds.edugo.identityassignment.domain.models.aggregates.Student;
 import com.codeminds.edugo.identityassignment.domain.models.entities.SensorScan;
 import com.codeminds.edugo.identityassignment.domain.models.commands.aggregates.DeleteStudentCommand;
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetAllStudentsQuery;
+import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByDriverProfileIdQuery;
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
 import com.codeminds.edugo.identityassignment.domain.services.aggregates.student.StudentCommandService;
 import com.codeminds.edugo.identityassignment.domain.services.aggregates.student.StudentQueryService;
@@ -66,5 +67,21 @@ public class StudentController {
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
         studentCommandService.handle(new DeleteStudentCommand(id));
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/driver/{driverProfileId}")
+    public ResponseEntity<List<StudentResource>> getStudentsByDriverProfileId(
+            @PathVariable Long driverProfileId) {
+
+        List<Student> students = studentQueryService.handle(
+                new GetStudentsByDriverProfileIdQuery(driverProfileId)
+        );
+
+        List<StudentResource> resources = students.stream()
+                .map(StudentResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+
+        return ResponseEntity.ok(resources);
     }
 }

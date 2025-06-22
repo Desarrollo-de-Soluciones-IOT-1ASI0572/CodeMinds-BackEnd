@@ -2,6 +2,7 @@ package com.codeminds.edugo.profiles.interfaces.acl;
 
 import com.codeminds.edugo.profiles.domain.model.commands.CreateProfileCommand;
 import com.codeminds.edugo.profiles.domain.model.queries.GetProfileByEmailQuery;
+import com.codeminds.edugo.profiles.domain.model.queries.GetProfileByIdQuery;
 import com.codeminds.edugo.profiles.domain.services.ProfileCommandService;
 import com.codeminds.edugo.profiles.domain.services.ProfileQueryService;
 import org.springframework.stereotype.Service;
@@ -61,5 +62,14 @@ public class ProfilesContextFacade {
             return 0L;
         return profile.get().getId();
 
+    }
+
+    public String fetchProfileRoleById(Long profileId) {
+        var query = new GetProfileByIdQuery(profileId);
+        var profile = profileQueryService.handle(query);
+        if (profile.isEmpty())
+            throw new IllegalArgumentException("Profile with id " + profileId + " does not exist");
+
+        return profile.get().getRole();
     }
 }

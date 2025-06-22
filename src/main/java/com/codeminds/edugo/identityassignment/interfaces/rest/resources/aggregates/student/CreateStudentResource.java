@@ -6,5 +6,6 @@ public record CreateStudentResource(
         String homeAddress,
         String schoolAddress,
         String studentPhotoUrl,
-        Long parentProfileId
+        Long parentProfileId,
+        Long driverId
 ) {}

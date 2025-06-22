@@ -2,6 +2,7 @@ package com.codeminds.edugo.identityassignment.application.internal.queryservice
 
 import com.codeminds.edugo.identityassignment.domain.models.aggregates.Student;
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetAllStudentsQuery;
+import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByDriverProfileIdQuery;
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
 import com.codeminds.edugo.identityassignment.domain.services.aggregates.student.StudentQueryService;
 import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
@@ -28,5 +29,10 @@ public class StudentQueryServiceImpl implements StudentQueryService {
     @Override
     public Optional<Student> handle(GetStudentsByIdQuery query) {
         return studentRepository.findById(query.studentId());
+    }
+
+    @Override
+    public List<Student> handle(GetStudentsByDriverProfileIdQuery query) {
+        return studentRepository.findByDriverId(query.driverProfileId());
     }
 }

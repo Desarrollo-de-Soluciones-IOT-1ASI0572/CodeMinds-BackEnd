@@ -13,5 +13,6 @@ public record StudentResource(
         String schoolAddress,
         String studentPhotoUrl,
         WristbandResource wristband,
-        ProfileResource parentProfile  // ← Nuevo campo
+        ProfileResource parentProfile,  // ← Nuevo campo
+        Long driverId
 ) {}

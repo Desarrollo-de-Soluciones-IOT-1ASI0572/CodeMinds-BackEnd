@@ -27,7 +27,8 @@ public class StudentResourceFromEntityAssembler {
                 entity.getSchoolAddress(),
                 entity.getStudentPhotoUrl(),
                 wristbandResource,
-                profileResource
+                profileResource,
+                entity.getDriverId()
         );
     }
 }
