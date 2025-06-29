@@ -1,8 +1,12 @@
 package com.codeminds.edugo.vehicule.interfaces.rest;
 
+import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
+import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.repositories.ProfileRepository;
 import com.codeminds.edugo.vehicule.application.internal.commandservices.TrackingCommandServiceImpl;
 
 import com.codeminds.edugo.vehicule.domain.model.aggregates.Vehicle;
+import com.codeminds.edugo.vehicule.domain.model.commands.DeleteTripCommand;
+import com.codeminds.edugo.vehicule.domain.model.entities.Location;
 import com.codeminds.edugo.vehicule.domain.model.commands.DeleteTripCommand;
 import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
 import com.codeminds.edugo.vehicule.domain.model.entities.TripStudent;
@@ -13,12 +17,17 @@ import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.
 import com.codeminds.edugo.vehicule.interfaces.rest.resources.*;
 import com.codeminds.edugo.vehicule.interfaces.rest.transform.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -27,6 +36,8 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/api/v1/vehicle-tracking")
 @Tag(name = "Vehicle Tracking", description = "Endpoints for managing vehicle tracking")
 public class VehicleTrackingController{
+
+    private static final Logger log = LoggerFactory.getLogger(VehicleTrackingController.class);
     private final TrackingCommandServiceImpl commandService;
 
     private final TripRepository tripRepository;
@@ -37,13 +48,16 @@ public class VehicleTrackingController{
 
     private final LocationRepository locationRepository;
 
+    private final ProfileRepository profileRepository;
 
-    public VehicleTrackingController(TrackingCommandServiceImpl commandService, TripRepository tripRepository, VehicleRepository vehicleRepository, TripStudentRepository tripStudentRepository, LocationRepository locationRepository) {
+
+    public VehicleTrackingController(TrackingCommandServiceImpl commandService, TripRepository tripRepository, VehicleRepository vehicleRepository, TripStudentRepository tripStudentRepository, LocationRepository locationRepository, ProfileRepository profileRepository) {
         this.commandService = commandService;
         this.tripRepository = tripRepository;
         this.vehicleRepository = vehicleRepository;
         this.tripStudentRepository = tripStudentRepository;
         this.locationRepository = locationRepository;
+        this.profileRepository = profileRepository;
     }
 
     /**
@@ -67,7 +81,15 @@ public class VehicleTrackingController{
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(resource.vehicleId());
         if (optionalVehicle.isEmpty()) return ResponseEntity.badRequest().build();
 
-        Trip trip = new Trip(optionalVehicle.get(), resource.origin(), resource.destination());
+        Optional<Profile> optionalDriver = profileRepository.findById(resource.driverId());
+        if (optionalDriver.isEmpty()) return ResponseEntity.badRequest().build();
+
+        Trip trip = new Trip(
+                optionalVehicle.get(),
+                optionalDriver.get(),
+                resource.origin(),
+                resource.destination()
+        );
         Trip savedTrip = tripRepository.save(trip);
 
         return new ResponseEntity<>(TripResourceFromEntityAssembler.toResourceFromEntity(savedTrip), HttpStatus.CREATED);
@@ -224,6 +246,18 @@ public class VehicleTrackingController{
                 .collect(toList());
     }
 
+    // Endpoint para eliminar un viaje
+    /*@DeleteMapping("/trips/{id}")
+    public ResponseEntity<String> deleteTrip(@PathVariable int id) {
+        boolean isDeleted = tripService.deleteTripById(id);
+        if (isDeleted) {
+            return ResponseEntity.ok("Trip deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Trip not found.");
+        }
+    }*/
+
     @DeleteMapping("/trips/{id}")
     public ResponseEntity<String> deleteTrip(@PathVariable Long id) {
         DeleteTripCommand command = new DeleteTripCommand(id); // Crear el comando con el ID del viaje
@@ -235,5 +269,89 @@ public class VehicleTrackingController{
             return ResponseEntity.status(404).body("Trip not found.");
         }
     }
+
+    /**
+     * Obtiene la ubicación actual del vehículo asociado a un estudiante
+     */
+    @GetMapping("/students/{studentId}/current-vehicle-location")
+    public ResponseEntity<?> getCurrentVehicleLocationByStudent(
+            @PathVariable Long studentId) {
+
+        try {
+            // 1. Validar studentId
+            if (studentId == null || studentId <= 0) {
+                return ResponseEntity.badRequest().body("Student ID must be positive");
+            }
+
+            // 2. Buscar viaje activo
+            TripStudent activeTrip = tripStudentRepository
+                    .findActiveByStudentIdOrdered(studentId, PageRequest.of(0, 1))
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+
+            if (activeTrip == null || activeTrip.getTrip() == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No active trip found for student");
+            }
+
+            // 3. Obtener última ubicación
+            Optional<Location> lastLocation = locationRepository
+                    .findFirstByTripIdOrderByTimestampDesc(activeTrip.getTrip().getId());
+
+            if (lastLocation.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No location data available for this trip");
+            }
+
+            // 4. Construir respuesta
+            VehicleLocationResource resource = new VehicleLocationResource(
+                    activeTrip.getTrip().getVehicle().getId(),
+                    activeTrip.getTrip().getId(),
+                    new GeoPoint(
+                            lastLocation.get().getLatitude(),
+                            lastLocation.get().getLongitude()
+                    ),
+                    lastLocation.get().getTimestamp()
+            );
+
+            return ResponseEntity.ok(resource);
+
+        } catch (Exception e) {
+            log.error("Error fetching vehicle location for student {}: {}", studentId, e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body("Could not retrieve location data");
+        }
+    }
+
+    @GetMapping("/trips/completed")
+    public List<TripResource> getCompletedTrips() {
+        return tripRepository.findByEndTimeIsNotNull().stream()
+                .map(TripResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(toList());
+    }
+
+    @GetMapping("/trips/completed/driver/{driverId}")
+    public List<TripResource> getCompletedTripsByDriver(@PathVariable Long driverId) {
+        return tripRepository.findByEndTimeIsNotNullAndVehicle_DriverId(driverId).stream()
+                .map(TripResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(toList());
+    }
+
+    @GetMapping("/trips/active/driver/{driverId}")
+    public ResponseEntity<List<ActiveTripResource>> getActiveTripByDriver(@PathVariable Long driverId) {
+        List<Trip> activeTrips = tripRepository.findActiveTripByDriverId(driverId)
+                .map(Collections::singletonList) // Convierte el Optional<Trip> a List<Trip>
+                .orElse(Collections.emptyList()); // Si no hay viaje, devuelve lista vacía
+
+        List<ActiveTripResource> response = activeTrips.stream()
+                .map(ActiveTripResourceAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
 
 }

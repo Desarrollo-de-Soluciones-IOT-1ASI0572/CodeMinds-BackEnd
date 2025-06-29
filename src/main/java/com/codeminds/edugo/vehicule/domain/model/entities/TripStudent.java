@@ -1,5 +1,6 @@
 package com.codeminds.edugo.vehicule.domain.model.entities;
 
+import com.codeminds.edugo.identityassignment.domain.models.aggregates.Student;
 import jakarta.persistence.*;
 import lombok.Setter;
 
@@ -16,8 +17,9 @@ public class TripStudent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "student_id", nullable = false)
-    private Long studentId;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
 
     @Column(name = "attended", nullable = false)
     private boolean attended = false;
@@ -36,12 +38,12 @@ public class TripStudent {
     public TripStudent() {
     }
 
-    public void setTrip(Trip trip) {
-        this.trip = trip;
+    public TripStudent(Student student) {
+        this.student = student;
     }
 
-    public TripStudent(Long studentId) {
-        this.studentId = studentId;
+    public void setTrip(Trip trip) {
+        this.trip = trip;
     }
 
     public void markAttendance(LocalDateTime boardedAt) {
@@ -58,8 +60,8 @@ public class TripStudent {
         return id;
     }
 
-    public Long getStudentId() {
-        return studentId;
+    public Student getStudent() {
+        return student;
     }
 
     public boolean isAttended() {
@@ -74,4 +76,7 @@ public class TripStudent {
         return exitedAt;
     }
 
+    public Trip getTrip() {
+        return this.trip;
+    }
 }

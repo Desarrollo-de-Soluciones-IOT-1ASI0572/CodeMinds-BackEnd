@@ -2,7 +2,7 @@ package com.codeminds.edugo.shared.domain.model.aggregates;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.AbstractAggregateRoot;
@@ -13,10 +13,9 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> extends AbstractAggregateRoot<T> {
-    // this is used to publish domain events
+
     @Id
     @Getter
-    @Setter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -37,4 +36,5 @@ public class AuditableAbstractAggregateRoot<T extends AbstractAggregateRoot<T>> 
     public void setUpdatedAt() {
         this.updatedAt = new Date();
     }
+
 }

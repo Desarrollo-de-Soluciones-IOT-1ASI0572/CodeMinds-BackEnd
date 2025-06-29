@@ -8,6 +8,7 @@ public class TripResourceFromEntityAssembler {
         return new TripResource(
                 trip.getId(),
                 trip.getVehicle().getId(),
+                trip.getDriver().getId(),
                 trip.getOrigin(),
                 trip.getDestination(),
                 trip.getStartTime(),

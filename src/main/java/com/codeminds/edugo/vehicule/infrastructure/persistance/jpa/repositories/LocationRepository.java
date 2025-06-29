@@ -33,4 +33,6 @@ public interface LocationRepository extends JpaRepository<Location, Integer> {
     List<Location> findByTripIdOrderByTimestampAsc(Long tripId);
 
     List<Location> findByTrip_IdOrderByTimestampAsc(Long tripId);
+
+    Optional<Location> findFirstByTripIdOrderByTimestampDesc(Long tripId);
 }

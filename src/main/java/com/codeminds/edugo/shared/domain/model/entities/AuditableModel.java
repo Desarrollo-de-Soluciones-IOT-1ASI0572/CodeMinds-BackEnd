@@ -11,8 +11,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Date;
 
 @EntityListeners(AuditingEntityListener.class)
-@MappedSuperclass // JPA annotation to indicate that this class is an abstract entity that should be mapped to the database
-public class AuditableModel {
+@MappedSuperclass
+public abstract class AuditableModel {
+
     @Getter
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -22,4 +23,6 @@ public class AuditableModel {
     @LastModifiedDate
     @Column(nullable = false)
     private Date updatedAt;
+
 }
+
