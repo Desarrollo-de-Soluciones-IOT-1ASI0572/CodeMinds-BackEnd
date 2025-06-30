@@ -144,20 +144,20 @@ public class VehicleTrackingController{
     /**
      * Registra el abordaje de un estudiante al transporte.
      */
-    @PostMapping("/boarding")
+    /*@PostMapping("/boarding")
     public ResponseEntity<Void> registerBoarding(@RequestBody RegisterStudentBoardingResource resource) {
         commandService.handle(RegisterStudentBoardingCommandFromResourceAssembler.toCommandFromResource(resource));
         return ResponseEntity.ok().build();
-    }
+    }*/
 
     /**
      * Registra la bajada de un estudiante del transporte.
      */
-    @PostMapping("/exit")
+    /*@PostMapping("/exit")
     public ResponseEntity<Void> registerExit(@RequestBody RegisterStudentExitResource resource) {
         commandService.handle(RegisterStudentExitCommandFromResourceAssembler.toCommandFromResource(resource));
         return ResponseEntity.ok().build();
-    }
+    }*/
 
 
     /**

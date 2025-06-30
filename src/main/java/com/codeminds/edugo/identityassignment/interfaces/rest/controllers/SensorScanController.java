@@ -1,6 +1,5 @@
 package com.codeminds.edugo.identityassignment.interfaces.rest.controllers;
 
-import com.codeminds.edugo.identityassignment.domain.models.commands.entities.CreateSensorScanCommand;
 import com.codeminds.edugo.identityassignment.domain.models.commands.entities.DeleteSensorScanCommand;
 import com.codeminds.edugo.identityassignment.domain.models.entities.SensorScan;
 import com.codeminds.edugo.identityassignment.domain.models.queries.entities.sensorscan.GetAllSensorScansQuery;
@@ -11,8 +10,6 @@ import com.codeminds.edugo.identityassignment.domain.services.entities.sensorsca
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities.sensorscan.CreateSensorScanResource;
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.entities.sensorscan.SensorScanResource;
 import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.sensorscan.CreateSensorScanCommandFromResourceAssembler;
-import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.sensorscan.CreateSensorScanCommandFromResourceAssembler;
-import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.sensorscan.SensorScanResourceFromEntityAssembler;
 import com.codeminds.edugo.identityassignment.interfaces.rest.transform.entities.sensorscan.SensorScanResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
