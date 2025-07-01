@@ -1,5 +1,7 @@
 package com.codeminds.edugo.vehicule.interfaces.rest;
 
+import com.codeminds.edugo.identityassignment.domain.models.aggregates.Student;
+import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
 import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
 import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.repositories.ProfileRepository;
 import com.codeminds.edugo.vehicule.application.internal.commandservices.TrackingCommandServiceImpl;
@@ -42,6 +44,7 @@ public class VehicleTrackingController{
 
     private final TripRepository tripRepository;
 
+    private final StudentRepository studentRepository;
     private final VehicleRepository vehicleRepository;
 
     private final TripStudentRepository tripStudentRepository;
@@ -51,9 +54,10 @@ public class VehicleTrackingController{
     private final ProfileRepository profileRepository;
 
 
-    public VehicleTrackingController(TrackingCommandServiceImpl commandService, TripRepository tripRepository, VehicleRepository vehicleRepository, TripStudentRepository tripStudentRepository, LocationRepository locationRepository, ProfileRepository profileRepository) {
+    public VehicleTrackingController(TrackingCommandServiceImpl commandService, TripRepository tripRepository, StudentRepository studentRepository, VehicleRepository vehicleRepository, TripStudentRepository tripStudentRepository, LocationRepository locationRepository, ProfileRepository profileRepository) {
         this.commandService = commandService;
         this.tripRepository = tripRepository;
+        this.studentRepository = studentRepository;
         this.vehicleRepository = vehicleRepository;
         this.tripStudentRepository = tripStudentRepository;
         this.locationRepository = locationRepository;
@@ -78,12 +82,14 @@ public class VehicleTrackingController{
      */
     @PostMapping("/trips")
     public ResponseEntity<TripResource> createTrip(@RequestBody CreateTripResource resource) {
+        // 1. Validar vehicle y driver (existente)
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(resource.vehicleId());
-        if (optionalVehicle.isEmpty()) return ResponseEntity.badRequest().build();
-
         Optional<Profile> optionalDriver = profileRepository.findById(resource.driverId());
-        if (optionalDriver.isEmpty()) return ResponseEntity.badRequest().build();
+        if (optionalVehicle.isEmpty() || optionalDriver.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
 
+        // 2. Crear y guardar el Trip
         Trip trip = new Trip(
                 optionalVehicle.get(),
                 optionalDriver.get(),
@@ -92,7 +98,15 @@ public class VehicleTrackingController{
         );
         Trip savedTrip = tripRepository.save(trip);
 
-        return new ResponseEntity<>(TripResourceFromEntityAssembler.toResourceFromEntity(savedTrip), HttpStatus.CREATED);
+        // 3. Obtener estudiantes del driver y crear TripStudent
+        List<Student> students = studentRepository.findByDriverId(resource.driverId());
+        for (Student student : students) {
+            TripStudent tripStudent = new TripStudent(student);
+            savedTrip.addStudent(tripStudent); // Método que ya tienes en la entidad Trip
+        }
+        tripRepository.save(savedTrip); // Guarda en cascada los TripStudent
+
+        return ResponseEntity.ok(TripResourceFromEntityAssembler.toResourceFromEntity(savedTrip));
     }
 
 

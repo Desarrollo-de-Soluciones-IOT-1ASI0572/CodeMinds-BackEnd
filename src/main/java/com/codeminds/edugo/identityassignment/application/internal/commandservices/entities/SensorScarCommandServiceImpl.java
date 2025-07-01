@@ -46,25 +46,38 @@ public class SensorScarCommandServiceImpl implements SensorScanCommandService {
 
     @Override
     public Optional<SensorScan> handle(CreateSensorScanCommand command) {
-        // 1. Buscar wristband y validar
+        // 1. Validar wristband
         var wristband = wristbandRepository.findById(command.wristbandId())
-                .orElseThrow(() -> new IllegalArgumentException("Wristband not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Pulsera no registrada"));
 
-        // 2. Buscar TripStudent asociado al tripId y studentId (del wristband)
+        // 2. Buscar TripStudent
         var tripStudent = tripStudentRepository.findByTrip_IdAndStudentId(
                 command.tripId(),
                 wristband.getStudent().getId()
         );
 
-        // 3. Actualizar boardedAt o exitedAt según scanType USANDO LOS MÉTODOS EXISTENTES
+        // 3. Validar scans duplicados/incongruentes
+        if (command.scanType() == ScanType.ENTRY && tripStudent.getBoardedAt() != null) {
+            throw new IllegalStateException("Estudiante ya ingresó al vehículo (ENTRY duplicado)");
+        }
+        else if (command.scanType() == ScanType.EXIT) {
+            if (tripStudent.getBoardedAt() == null) {
+                throw new IllegalStateException("Estudiante no ha ingresado (EXIT sin ENTRY previo)");
+            }
+            if (tripStudent.getExitedAt() != null) {
+                throw new IllegalStateException("Estudiante ya salió del vehículo (EXIT duplicado)");
+            }
+        }
+
+        // 4. Actualizar TripStudent
         if (command.scanType() == ScanType.ENTRY) {
-            tripStudent.markAttendance(command.scanTime()); // Usa markAttendance en lugar de setBoardedAt
+            tripStudent.markAttendance(command.scanTime());
         } else {
-            tripStudent.markExit(command.scanTime()); // Usa markExit en lugar de setExitedAt
+            tripStudent.markExit(command.scanTime());
         }
         tripStudentRepository.save(tripStudent);
 
-        // 4. Crear y guardar el SensorScan (existente)
+        // 5. Registrar scan
         var sensorScan = new SensorScan(
                 command.scanType(),
                 wristband,
