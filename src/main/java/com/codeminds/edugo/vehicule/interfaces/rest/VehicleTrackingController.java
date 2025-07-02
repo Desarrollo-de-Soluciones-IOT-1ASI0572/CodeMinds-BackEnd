@@ -352,13 +352,26 @@ public class VehicleTrackingController{
                 .collect(toList());
     }
 
-    @GetMapping("/trips/active/driver/{driverId}")
+    /*@GetMapping("/trips/active/driver/{driverId}")
     public ResponseEntity<List<ActiveTripResource>> getActiveTripByDriver(@PathVariable Long driverId) {
         List<Trip> activeTrips = tripRepository.findActiveTripByDriverId(driverId)
                 .map(Collections::singletonList) // Convierte el Optional<Trip> a List<Trip>
                 .orElse(Collections.emptyList()); // Si no hay viaje, devuelve lista vacía
 
         List<ActiveTripResource> response = activeTrips.stream()
+                .map(ActiveTripResourceAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }*/
+    @GetMapping("/trips/active/driver/{driverId}")
+    public ResponseEntity<List<ActiveTripResource>> getActiveTripByDriver(@PathVariable Long driverId) {
+        Optional<Trip> activeTrip = tripRepository.findActiveTripByDriverId(driverId);
+
+        List<ActiveTripResource> response = activeTrip
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList())
+                .stream()
                 .map(ActiveTripResourceAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());
 
