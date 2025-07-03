@@ -1,6 +1,7 @@
 package com.codeminds.edugo.analytics.interfaces;
 
 import com.codeminds.edugo.analytics.domain.model.querys.GetAllDailyLogQuery;
+import com.codeminds.edugo.analytics.domain.model.querys.GetAllDailyLogsByDriverIdQuery;
 import com.codeminds.edugo.analytics.domain.model.querys.GetDailyLogByIdQuery;
 import com.codeminds.edugo.analytics.domain.services.DailyLogCommandService;
 import com.codeminds.edugo.analytics.domain.services.DailyLogQueryService;
@@ -52,5 +53,13 @@ public class AnalyticsController {
 
         var logResource = DailyLogResourceFromEntityAssembler.toResourceFromEntity(result.get());
         return new ResponseEntity<>(logResource, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/logs/driver/{driverId}")
+    public ResponseEntity<List<DailyLogResource>> getLogsByDriverId(@PathVariable Long driverId) {
+        var query = new GetAllDailyLogsByDriverIdQuery(driverId);
+        var logs = dailyLogQueryService.handle(query);
+        var resources = logs.stream().map(DailyLogResourceFromEntityAssembler::toResourceFromEntity).toList();
+        return ResponseEntity.ok(resources);
     }
 }

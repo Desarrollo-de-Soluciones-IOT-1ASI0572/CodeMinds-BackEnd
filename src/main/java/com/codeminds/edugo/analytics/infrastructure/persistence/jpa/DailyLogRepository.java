@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface DailyLogRepository extends JpaRepository<DailyLog, Long> {
     List<DailyLog> findByDriverUserId(Long driverUserId);
-
+//    List<DailyLog> findAllByDriverId(Long driverUserId);
 }

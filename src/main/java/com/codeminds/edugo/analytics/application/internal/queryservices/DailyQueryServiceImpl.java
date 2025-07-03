@@ -4,6 +4,7 @@ import com.codeminds.edugo.analytics.domain.model.aggregates.DailyLog;
 import com.codeminds.edugo.analytics.domain.model.dto.DriverDashboard;
 import com.codeminds.edugo.analytics.domain.model.dto.IncidentSummary;
 import com.codeminds.edugo.analytics.domain.model.querys.GetAllDailyLogQuery;
+import com.codeminds.edugo.analytics.domain.model.querys.GetAllDailyLogsByDriverIdQuery;
 import com.codeminds.edugo.analytics.domain.model.querys.GetDailyLogByIdQuery;
 import com.codeminds.edugo.analytics.domain.services.DailyLogQueryService;
 import com.codeminds.edugo.analytics.infrastructure.persistence.jpa.DailyLogRepository;
@@ -78,4 +79,8 @@ public class DailyQueryServiceImpl implements DailyLogQueryService {
         return Optional.of(new DriverDashboard(driverId, week, speedPerWeek, arrivalTimes, summary));
     }
 
+    @Override
+    public List<DailyLog> handle(GetAllDailyLogsByDriverIdQuery query) {
+        return dailyLogRepository.findByDriverUserId(query.driverUserId());
+    }
 }

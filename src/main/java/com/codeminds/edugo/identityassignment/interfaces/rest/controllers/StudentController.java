@@ -6,6 +6,7 @@ import com.codeminds.edugo.identityassignment.domain.models.commands.aggregates.
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetAllStudentsQuery;
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByDriverProfileIdQuery;
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
+import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByParentProfileIdQuery;
 import com.codeminds.edugo.identityassignment.domain.services.aggregates.student.StudentCommandService;
 import com.codeminds.edugo.identityassignment.domain.services.aggregates.student.StudentQueryService;
 import com.codeminds.edugo.identityassignment.interfaces.rest.resources.aggregates.student.CreateStudentResource;
@@ -33,7 +34,7 @@ public class StudentController {
         this.studentQueryService = studentQueryService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<List<StudentResource>> CreateStudent(
             @RequestBody CreateStudentResource resource){
         Optional<Student> student = studentCommandService
@@ -46,7 +47,7 @@ public class StudentController {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<StudentResource>> getAllStudents() {
         var getAllStudents = new GetAllStudentsQuery();
         var student = studentQueryService.handle(getAllStudents);
@@ -84,4 +85,20 @@ public class StudentController {
 
         return ResponseEntity.ok(resources);
     }
+
+    @GetMapping("/parent/{parentProfileId}")
+    public ResponseEntity<List<StudentResource>> getStudentsByParentProfileId(
+            @PathVariable Long parentProfileId) {
+
+        List<Student> students = studentQueryService.handle(
+                new GetStudentsByParentProfileIdQuery(parentProfileId)
+        );
+
+        List<StudentResource> resources = students.stream()
+                .map(StudentResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+
+        return ResponseEntity.ok(resources);
+    }
+
 }

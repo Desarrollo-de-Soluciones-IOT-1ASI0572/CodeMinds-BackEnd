@@ -6,6 +6,7 @@ import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.s
 
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByDriverProfileIdQuery;
 import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
+import com.codeminds.edugo.identityassignment.domain.models.queries.aggregates.student.GetStudentsByParentProfileIdQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +15,5 @@ public interface StudentQueryService {
     List<Student> handle (GetAllStudentsQuery query);
     Optional<Student> handle (GetStudentsByIdQuery query);
     List<Student> handle(GetStudentsByDriverProfileIdQuery query);
+    List<Student> handle(GetStudentsByParentProfileIdQuery query);
 }
