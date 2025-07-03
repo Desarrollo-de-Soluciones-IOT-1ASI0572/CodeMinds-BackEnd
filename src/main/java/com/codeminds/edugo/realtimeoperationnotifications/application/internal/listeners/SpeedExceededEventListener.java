@@ -25,7 +25,7 @@ public class SpeedExceededEventListener {
         var command = new CreateRealTimeNotificationCommand(
                 "speeding",           // Tipo de evento
                 description,          // Detalle del exceso de velocidad
-                "DRIVER",             // Usuario receptor: conductor
+                "ROLE_DRIVER",             // Usuario receptor: conductor
                 vehicleId,            // Se usa el vehicleId como ID del conductor (ajustar si se modela driverId)
                 null,                 // No aplica tripId directamente
                 null                  // No hay estudiante involucrado

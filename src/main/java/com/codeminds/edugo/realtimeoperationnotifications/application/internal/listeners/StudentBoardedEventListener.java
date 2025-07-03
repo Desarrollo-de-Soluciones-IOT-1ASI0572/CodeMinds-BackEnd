@@ -1,5 +1,6 @@
 package com.codeminds.edugo.realtimeoperationnotifications.application.internal.listeners;
 
+import com.codeminds.edugo.identityassignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
 import com.codeminds.edugo.realtimeoperationnotifications.domain.model.commands.CreateRealTimeNotificationCommand;
 import com.codeminds.edugo.realtimeoperationnotifications.domain.services.RealTimeNotificationCommandService;
 import com.codeminds.edugo.vehicule.domain.events.StudentBoardedEvent;
@@ -11,8 +12,11 @@ public class StudentBoardedEventListener {
 
     private final RealTimeNotificationCommandService notificationCommandService;
 
-    public StudentBoardedEventListener(RealTimeNotificationCommandService notificationCommandService) {
+    private final StudentRepository studentRepository;
+
+    public StudentBoardedEventListener(RealTimeNotificationCommandService notificationCommandService, StudentRepository studentRepository) {
         this.notificationCommandService = notificationCommandService;
+        this.studentRepository = studentRepository;
     }
 
     @EventListener
@@ -21,28 +25,36 @@ public class StudentBoardedEventListener {
         Long tripId = event.tripId();
         Long parentId = findParentIdByStudentId(studentId);
 
-        if (parentId == null) return;
+        if (parentId == null) {
+            System.out.println("⚠️ No se encontró parentId para studentId: " + studentId);
+            return;
+        }
 
-        String description = "El estudiante #" + studentId + " abordó el vehículo.";
+
+        String studentName = getStudentName(studentId);
+        String description = studentName + " ha subido al vehículo del viaje #" + tripId;
 
         var command = new CreateRealTimeNotificationCommand(
-                "boarded",
+                "boarded",       // Tipo de evento
                 description,
-                "PARENT",
-                parentId,
-                studentId,
-                tripId
+                "ROLE_PARENT",   // userType estandarizado
+                parentId,        // ID del padre
+                tripId,          // ID del viaje (correctamente posicionado)
+                studentId        // ID del estudiante
         );
 
         notificationCommandService.handle(command);
     }
 
-    /**
-     * Simula la obtención del padre a partir del estudiante.
-     * Este método debería consultarse desde una base de datos o servicio en producción.
-     */
     private Long findParentIdByStudentId(Long studentId) {
-        // TODO: Integrar con tu repositorio o servicio real
-        return studentId + 1000; // Simulación temporal
+        return studentRepository.findById(studentId)
+                .map(student -> student.getParentProfile().getId())  // Cambiado de getParent() a getParentProfile()
+                .orElse(null);
+    }
+
+    private String getStudentName(Long studentId) {
+        return studentRepository.findById(studentId)
+                .map(student -> student.getName() + " " + student.getLastName())  // Usamos name y lastName directamente
+                .orElse("Estudiante #" + studentId);
     }
 }

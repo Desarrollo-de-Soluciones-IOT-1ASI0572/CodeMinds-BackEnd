@@ -49,11 +49,11 @@ public class RealTimeNotification extends AuditableAbstractAggregateRoot<RealTim
         String time = timestamp != null ? timestamp.toLocalTime().withNano(0).toString() : "hora desconocida";
 
         return switch (eventType) {
-            case "boarded" -> description + " subió al vehículo. " + time;
-            case "arrived" -> description + " llegó al destino. " + time;
+            case "boarded" -> description;
+            case "arrived" -> description;
             case "speeding" -> "El vehículo está excediendo la velocidad. " + time;
             case "change" -> "El vehículo cambió de ruta. " + time;
-            default -> "Notificación generada: " + description + " a las " + time;
+            default -> description + " (" + time + ")";
         };
     }
 

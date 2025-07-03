@@ -86,8 +86,11 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
 
         eventPublisher.publish(new TripEndedEvent(
                 trip.getId(),
-                trip.getVehicle().getId(),
-                trip.getEndTime()
+                vehicle.getId(),
+                trip.getDriver().getId(),  // Asegúrate que Trip tenga getDriver()
+                trip.getOrigin(),
+                trip.getDestination(),
+                trip.getStartTime()
         ));
     }
 

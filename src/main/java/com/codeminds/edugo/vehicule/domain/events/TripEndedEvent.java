@@ -5,5 +5,8 @@ import java.time.LocalDateTime;
 public record TripEndedEvent(
         Long tripId,
         Long vehicleId,
-        LocalDateTime endTime
+        Long driverId,
+        String origin,
+        String destination,
+        LocalDateTime startTime
 ) {}
