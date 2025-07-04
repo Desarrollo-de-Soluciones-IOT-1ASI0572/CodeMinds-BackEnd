@@ -38,7 +38,7 @@ public class WristbandController {
         this.wristbandRepository = wristbandRepository;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<List<WristbandResource>> createWristband(
             @RequestBody CreateWristbandResource resource) {
         Optional<Wristband> wristband = wristbandCommandService
@@ -50,7 +50,7 @@ public class WristbandController {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<WristbandResource>> getAllWristbands() {
         var getAllWristbands = new GetAllWristbandsQuery();
         var wristbands = wristbandQueryService.handle(getAllWristbands);
