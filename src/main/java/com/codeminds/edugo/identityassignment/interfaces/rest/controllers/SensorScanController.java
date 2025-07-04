@@ -32,7 +32,7 @@ public class SensorScanController {
         this.sensorScanQueryService = sensorScanQueryService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<List<SensorScanResource>> createSensorScan(
             @RequestBody CreateSensorScanResource resource) {
         Optional<SensorScan> sensorScan = sensorScanCommandService
@@ -45,7 +45,7 @@ public class SensorScanController {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<SensorScanResource>> getAllSensorScans() {
         var getAllSensorScans = new GetAllSensorScansQuery();
         var sensorScans = sensorScanQueryService.handle(getAllSensorScans);
