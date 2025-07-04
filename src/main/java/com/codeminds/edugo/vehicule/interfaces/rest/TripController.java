@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 @RestController
 @RequestMapping("/api/v1/trips")
 @Tag(name = "Trip Management", description = "Endpoints for managing trips and trip-related operations")
@@ -189,5 +191,26 @@ public class TripController {
                         TripStudentResourceFromEntityAssembler.toResourceFromEntity(student),
                         HttpStatus.CREATED))
                 .orElse(ResponseEntity.badRequest().build());
+    }
+
+    /**
+     * Marca el inicio de una ruta para un vehículo.
+     */
+    @PutMapping("/start")
+    public ResponseEntity<VehicleResource> startRoute(@RequestBody StartRouteResource resource) {
+        return commandService.handle(StartRouteCommandFromResourceAssembler.toCommandFromResource(resource))
+                .map(vehicle -> new ResponseEntity<>(
+                        VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle),
+                        CREATED))
+                .orElse(ResponseEntity.badRequest().build());
+    }
+
+    /**
+     * Finaliza la ruta activa de un vehículo.
+     */
+    @PutMapping("/end")
+    public ResponseEntity<Void> endRoute(@RequestBody EndRouteResource resource) {
+        commandService.handle(EndRouteCommandFromResourceAssembler.toCommandFromResource(resource));
+        return ResponseEntity.ok().build();
     }
 }
