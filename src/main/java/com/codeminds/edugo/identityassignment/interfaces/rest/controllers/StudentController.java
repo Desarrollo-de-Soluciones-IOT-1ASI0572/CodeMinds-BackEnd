@@ -33,7 +33,7 @@ public class StudentController {
         this.studentQueryService = studentQueryService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<List<StudentResource>> CreateStudent(
             @RequestBody CreateStudentResource resource){
         Optional<Student> student = studentCommandService
@@ -46,7 +46,7 @@ public class StudentController {
                 .orElse(ResponseEntity.badRequest().build());
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<StudentResource>> getAllStudents() {
         var getAllStudents = new GetAllStudentsQuery();
         var student = studentQueryService.handle(getAllStudents);
