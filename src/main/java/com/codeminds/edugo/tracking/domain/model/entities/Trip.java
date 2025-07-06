@@ -50,7 +50,6 @@ public class Trip {
         this.driver = driver;
         this.origin = origin;
         this.destination = destination;
-        //this.startTime = LocalDateTime.now(); // por defecto
     }
 
     public Trip() {
@@ -74,8 +73,6 @@ public class Trip {
         this.locations.add(location);
         location.setTrip(this);
     }
-
-    // === GETTERS MANUALES ===
     public Long getId() {
         return id;
     }

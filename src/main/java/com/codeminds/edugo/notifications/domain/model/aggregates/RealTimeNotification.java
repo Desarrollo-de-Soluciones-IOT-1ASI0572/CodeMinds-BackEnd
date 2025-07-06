@@ -19,8 +19,8 @@ public class RealTimeNotification extends AuditableAbstractAggregateRoot<RealTim
     private String userType;
     private Long userId;
 
-    private Long tripId;      // Nuevo: ID del viaje relacionado (opcional)
-    private Long studentId;   // Nuevo: ID del estudiante relacionado (opcional)
+    private Long tripId;
+    private Long studentId;
 
     @Embedded
     private NotificationEvent event;
@@ -65,7 +65,6 @@ public class RealTimeNotification extends AuditableAbstractAggregateRoot<RealTim
         this.status = NotificationStatus.FAILED;
     }
 
-    // Getters manuales adicionales (opcional, según tu estilo)
     public Long getTripId() {
         return tripId;
     }
