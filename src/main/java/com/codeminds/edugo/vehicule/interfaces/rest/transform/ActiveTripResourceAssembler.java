@@ -1,6 +1,6 @@
 package com.codeminds.edugo.vehicule.interfaces.rest.transform;
 
-import com.codeminds.edugo.identityassignment.interfaces.rest.resources.aggregates.student.StudentDto;
+import com.codeminds.edugo.assignment.interfaces.rest.resources.aggregates.student.StudentDto;
 import com.codeminds.edugo.vehicule.domain.model.entities.Trip;
 import com.codeminds.edugo.vehicule.interfaces.rest.resources.ActiveTripResource;
 

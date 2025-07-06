@@ -1,6 +1,6 @@
 package com.codeminds.edugo.vehicule.domain.model.entities;
 
-import com.codeminds.edugo.identityassignment.domain.models.aggregates.Student;
+import com.codeminds.edugo.assignment.domain.models.aggregates.Student;
 import jakarta.persistence.*;
 import lombok.Setter;
 
