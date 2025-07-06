@@ -2,9 +2,9 @@ package com.codeminds.edugo.notifications.application.internal.listeners;
 
 import com.codeminds.edugo.notifications.domain.model.commands.CreateRealTimeNotificationCommand;
 import com.codeminds.edugo.notifications.domain.services.RealTimeNotificationCommandService;
-import com.codeminds.edugo.vehicule.domain.events.TripEndedEvent;
-import com.codeminds.edugo.vehicule.domain.model.entities.TripStudent;
-import com.codeminds.edugo.vehicule.infrastructure.persistance.jpa.repositories.TripStudentRepository;
+import com.codeminds.edugo.tracking.domain.events.TripEndedEvent;
+import com.codeminds.edugo.tracking.domain.model.entities.TripStudent;
+import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.TripStudentRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 

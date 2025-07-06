@@ -3,7 +3,7 @@ package com.codeminds.edugo.notifications.application.internal.listeners;
 import com.codeminds.edugo.assignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
 import com.codeminds.edugo.notifications.domain.model.commands.CreateRealTimeNotificationCommand;
 import com.codeminds.edugo.notifications.domain.services.RealTimeNotificationCommandService;
-import com.codeminds.edugo.vehicule.domain.events.StudentExitedEvent;
+import com.codeminds.edugo.tracking.domain.events.StudentExitedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
