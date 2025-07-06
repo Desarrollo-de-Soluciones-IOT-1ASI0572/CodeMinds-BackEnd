@@ -1,6 +1,6 @@
 package com.codeminds.edugo.notifications.application.internal.listeners;
 
-import com.codeminds.edugo.assignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
+import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.StudentRepository;
 import com.codeminds.edugo.notifications.domain.model.commands.CreateRealTimeNotificationCommand;
 import com.codeminds.edugo.notifications.domain.services.RealTimeNotificationCommandService;
 import com.codeminds.edugo.tracking.domain.events.StudentExitedEvent;
@@ -49,7 +49,7 @@ public class StudentExitedEventListener {
 
     private Long findParentIdByStudentId(Long studentId) {
         return studentRepository.findById(studentId)
-                .map(student -> student.getParentProfile().getId())
+                .map(student -> student.getParentProfileId())
                 .orElse(null);
     }
 

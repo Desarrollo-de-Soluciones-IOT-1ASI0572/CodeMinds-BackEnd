@@ -26,10 +26,7 @@ public class TripStartedEventListener {
 
     @EventListener
     public void onTripStarted(TripStartedEvent event) {
-        // 1. Notificar al conductor
         notifyDriver(event);
-
-        // 2. Notificar a los padres
         notifyParents(event);
     }
 
@@ -51,8 +48,8 @@ public class TripStartedEventListener {
         List<TripStudent> tripStudents = tripStudentRepository.findByTrip_Id(event.tripId());
 
         tripStudents.forEach(tripStudent -> {
-            if (tripStudent.getStudent() != null && tripStudent.getStudent().getParentProfile() != null) {
-                Long parentId = tripStudent.getStudent().getParentProfile().getId();
+            if (tripStudent.getStudent() != null) {
+                Long parentId = tripStudent.getStudent().getParentProfileId();
                 String studentName = tripStudent.getStudent().getName();
 
                 String description = "El viaje de " + studentName + " ha comenzado (" +

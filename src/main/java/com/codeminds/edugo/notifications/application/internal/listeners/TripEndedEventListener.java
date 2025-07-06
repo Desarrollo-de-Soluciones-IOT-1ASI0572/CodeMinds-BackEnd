@@ -3,34 +3,24 @@ package com.codeminds.edugo.notifications.application.internal.listeners;
 import com.codeminds.edugo.notifications.domain.model.commands.CreateRealTimeNotificationCommand;
 import com.codeminds.edugo.notifications.domain.services.RealTimeNotificationCommandService;
 import com.codeminds.edugo.tracking.domain.events.TripEndedEvent;
-import com.codeminds.edugo.tracking.domain.model.entities.TripStudent;
 import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.TripStudentRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class TripEndedEventListener {
 
     private final RealTimeNotificationCommandService notificationCommandService;
-    private final TripStudentRepository tripStudentRepository;
-
     public TripEndedEventListener(
             RealTimeNotificationCommandService notificationCommandService,
             TripStudentRepository tripStudentRepository
     ) {
         this.notificationCommandService = notificationCommandService;
-        this.tripStudentRepository = tripStudentRepository;
     }
 
     @EventListener
     public void onTripEnded(TripEndedEvent event) {
-        // 1. Notificar al conductor
         notifyDriver(event);
-
-        // 2. Notificar a los padres
-        //notifyParents(event);
     }
 
     private void notifyDriver(TripEndedEvent event) {
@@ -45,28 +35,5 @@ public class TripEndedEventListener {
                 null
         );
         notificationCommandService.handle(command);
-    }
-
-    private void notifyParents(TripEndedEvent event) {
-        List<TripStudent> tripStudents = tripStudentRepository.findByTrip_Id(event.tripId());
-
-        tripStudents.forEach(tripStudent -> {
-            if (tripStudent.getStudent() != null && tripStudent.getStudent().getParentProfile() != null) {
-                Long parentId = tripStudent.getStudent().getParentProfile().getId();
-                String studentName = tripStudent.getStudent().getName();
-
-                String description = studentName + " ha completado el viaje #" + event.tripId();
-
-                var command = new CreateRealTimeNotificationCommand(
-                        "arrived",
-                        description,
-                        "ROLE_PARENT",
-                        parentId,
-                        event.tripId(),
-                        tripStudent.getStudent().getId()
-                );
-                notificationCommandService.handle(command);
-            }
-        });
     }
 }

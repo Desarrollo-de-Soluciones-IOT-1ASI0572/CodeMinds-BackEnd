@@ -1,6 +1,6 @@
 package com.codeminds.edugo.tracking.interfaces.rest.resources;
 
-import com.codeminds.edugo.assignment.interfaces.rest.resources.aggregates.student.StudentDto;
+import com.codeminds.edugo.assignments.interfaces.rest.resources.StudentDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

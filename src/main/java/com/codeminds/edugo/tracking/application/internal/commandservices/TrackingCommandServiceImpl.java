@@ -1,7 +1,7 @@
 package com.codeminds.edugo.tracking.application.internal.commandservices;
 
-import com.codeminds.edugo.assignment.domain.models.aggregates.Student;
-import com.codeminds.edugo.assignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
+import com.codeminds.edugo.assignments.domain.models.aggregates.Student;
+import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.StudentRepository;
 import com.codeminds.edugo.shared.domain.model.bus.DomainEventPublisher;
 import com.codeminds.edugo.tracking.domain.events.*;
 import com.codeminds.edugo.tracking.domain.model.aggregates.Vehicle;

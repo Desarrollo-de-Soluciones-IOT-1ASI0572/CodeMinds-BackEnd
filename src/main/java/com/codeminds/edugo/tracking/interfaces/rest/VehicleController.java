@@ -1,6 +1,6 @@
 package com.codeminds.edugo.tracking.interfaces.rest;
 
-import com.codeminds.edugo.assignment.infrastructure.persistence.jpa.aggregates.StudentRepository;
+import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.StudentRepository;
 import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.repositories.ProfileRepository;
 import com.codeminds.edugo.tracking.application.internal.commandservices.TrackingCommandServiceImpl;
 import com.codeminds.edugo.tracking.domain.model.entities.Location;
