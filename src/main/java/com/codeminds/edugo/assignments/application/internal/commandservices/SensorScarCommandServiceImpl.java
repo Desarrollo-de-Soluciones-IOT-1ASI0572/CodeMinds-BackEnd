@@ -103,6 +103,7 @@ import com.codeminds.edugo.tracking.domain.events.StudentExitedEvent;
 import com.codeminds.edugo.tracking.domain.model.entities.TripStudent;
 import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.TripStudentRepository;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -136,21 +137,20 @@ public class SensorScarCommandServiceImpl implements SensorScanCommandService {
                 .orElseThrow(() -> new IllegalArgumentException("Pulsera no registrada"));
 
         Long studentId = wristband.getStudent().getId();
-        Long tripId = command.tripId();
+        //Long tripId = command.tripId();
 
-        // 2. Buscar TripStudent
-        var tripStudent = tripStudentRepository.findByTrip_IdAndStudentId(tripId, studentId);
+        //var tripStudent = tripStudentRepository.findByTrip_IdAndStudentId(tripId, studentId);
+        var tripStudent = tripStudentRepository.findActiveByStudentIdOrdered(studentId, PageRequest.of(0, 1))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró un viaje activo para el estudiante"));
 
-        // 3. Validar scans duplicados/incongruentes
         validateScan(command.scanType(), tripStudent);
 
-        // 4. Actualizar TripStudent
         updateTripStudent(command.scanType(), tripStudent, command.scanTime());
 
-        // 5. Publicar evento según el tipo de scan
-        publishEvent(command.scanType(), studentId, tripId, command.scanTime());
+        publishEvent(command.scanType(), studentId, tripStudent.getTrip().getId(), command.scanTime());
 
-        // 6. Registrar scan
         var sensorScan = new SensorScan(
                 command.scanType(),
                 wristband,

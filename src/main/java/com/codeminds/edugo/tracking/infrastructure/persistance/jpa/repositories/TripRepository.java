@@ -22,6 +22,9 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     List<Trip> findByEndTimeIsNotNullAndVehicle_DriverId(Long driverId);
 
+    public List<Trip> findByDriver_IdAndStatusIn(Long driverId, List<TripStatus> statuses);
+
+
     //@Query("SELECT t FROM Trip t WHERE t.driver.id = :driverId AND t.endTime IS NULL")
     //Optional<Trip> findActiveTripByDriverId(@Param("driverId") Long driverId);
 

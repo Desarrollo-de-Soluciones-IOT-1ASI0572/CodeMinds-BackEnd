@@ -170,7 +170,9 @@ public class TripController {
      */
     @GetMapping("/active/driver/{driverId}")
     public ResponseEntity<List<ActiveTripResource>> getActiveTripByDriver(@PathVariable Long driverId) {
-        List<Trip> activeTrips = tripRepository.findByDriver_IdAndStatus(driverId, TripStatus.IN_PROGRESS);
+        // Cambiar para incluir tanto 'CREATED' como 'IN_PROGRESS'
+        List<Trip> activeTrips = tripRepository.findByDriver_IdAndStatusIn(driverId,
+                List.of(TripStatus.CREATED, TripStatus.IN_PROGRESS));
 
         List<ActiveTripResource> response = activeTrips.stream()
                 .map(ActiveTripResourceAssembler::toResourceFromEntity)
@@ -178,6 +180,7 @@ public class TripController {
 
         return ResponseEntity.ok(response);
     }
+
 
     /**
      * Asocia un estudiante a un viaje determinado.

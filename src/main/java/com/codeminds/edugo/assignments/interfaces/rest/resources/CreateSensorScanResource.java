@@ -4,6 +4,5 @@ import com.codeminds.edugo.assignments.domain.models.valueobjects.ScanType;
 
 public record CreateSensorScanResource(
         ScanType scanType,
-        Long wristbandId,
-        Long tripId
+        Long wristbandId
 ) {}

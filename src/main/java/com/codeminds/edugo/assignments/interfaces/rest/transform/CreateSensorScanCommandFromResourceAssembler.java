@@ -9,8 +9,7 @@ public class CreateSensorScanCommandFromResourceAssembler {
         return new CreateSensorScanCommand(
                 resource.scanType(),
                 LocalDateTime.now(),
-                resource.wristbandId(),
-                resource.tripId()
+                resource.wristbandId()
         );
     }
 }
