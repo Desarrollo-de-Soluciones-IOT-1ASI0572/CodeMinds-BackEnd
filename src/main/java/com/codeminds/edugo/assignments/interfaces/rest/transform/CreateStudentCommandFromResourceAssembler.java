@@ -1,6 +1,6 @@
 package com.codeminds.edugo.assignments.interfaces.rest.transform;
 
-import com.codeminds.edugo.assignments.domain.models.commands.aggregates.CreateStudentCommand;
+import com.codeminds.edugo.assignments.domain.models.commands.CreateStudentCommand;
 import com.codeminds.edugo.assignments.interfaces.rest.resources.CreateStudentResource;
 
 public class CreateStudentCommandFromResourceAssembler {

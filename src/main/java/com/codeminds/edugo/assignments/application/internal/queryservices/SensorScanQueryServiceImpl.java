@@ -1,10 +1,10 @@
 package com.codeminds.edugo.assignments.application.internal.queryservices;
 
 import com.codeminds.edugo.assignments.domain.models.entities.SensorScan;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.sensorscan.GetAllSensorScansQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.sensorscan.GetSensorScansByIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.sensorscan.GetSensorScansByScanTypeQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.sensorscan.GetSensorScansByWristbandIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllSensorScansQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetSensorScansByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetSensorScansByScanTypeQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetSensorScansByWristbandIdQuery;
 import com.codeminds.edugo.assignments.domain.services.SensorScanQueryService;
 import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.SensorScanRepository;
 import org.springframework.stereotype.Service;

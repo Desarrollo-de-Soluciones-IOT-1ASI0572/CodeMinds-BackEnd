@@ -1,10 +1,10 @@
 package com.codeminds.edugo.assignments.application.internal.queryservices;
 
 import com.codeminds.edugo.assignments.domain.models.entities.Wristband;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetAllWristbandsQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByStudentIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByWristbandStatusQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllWristbandsQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByStudentIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByWristbandStatusQuery;
 import com.codeminds.edugo.assignments.domain.services.WristbandQueryService;
 import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.WristbandRepository;
 import org.springframework.stereotype.Service;

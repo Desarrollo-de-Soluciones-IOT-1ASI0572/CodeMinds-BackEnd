@@ -1,7 +1,7 @@
 package com.codeminds.edugo.assignments.domain.services;
 
-import com.codeminds.edugo.assignments.domain.models.commands.entities.CreateSensorScanCommand;
-import com.codeminds.edugo.assignments.domain.models.commands.entities.DeleteSensorScanCommand;
+import com.codeminds.edugo.assignments.domain.models.commands.CreateSensorScanCommand;
+import com.codeminds.edugo.assignments.domain.models.commands.DeleteSensorScanCommand;
 import com.codeminds.edugo.assignments.domain.models.entities.SensorScan;
 
 import java.util.Optional;

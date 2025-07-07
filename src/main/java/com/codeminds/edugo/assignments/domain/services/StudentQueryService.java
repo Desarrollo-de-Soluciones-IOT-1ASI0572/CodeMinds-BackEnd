@@ -2,10 +2,10 @@ package com.codeminds.edugo.assignments.domain.services;
 
 import com.codeminds.edugo.assignments.domain.models.aggregates.Student;
 
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetAllStudentsQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllStudentsQuery;
 
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetStudentsByDriverProfileIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByDriverProfileIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByIdQuery;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,10 +1,10 @@
 package com.codeminds.edugo.assignments.interfaces.rest;
 
-import com.codeminds.edugo.assignments.domain.models.commands.entities.DeleteSensorScanCommand;
+import com.codeminds.edugo.assignments.domain.models.commands.DeleteSensorScanCommand;
 import com.codeminds.edugo.assignments.domain.models.entities.SensorScan;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.sensorscan.GetAllSensorScansQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.sensorscan.GetSensorScansByIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.sensorscan.GetSensorScansByWristbandIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllSensorScansQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetSensorScansByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetSensorScansByWristbandIdQuery;
 import com.codeminds.edugo.assignments.domain.services.SensorScanCommandService;
 import com.codeminds.edugo.assignments.domain.services.SensorScanQueryService;
 import com.codeminds.edugo.assignments.interfaces.rest.resources.CreateSensorScanResource;

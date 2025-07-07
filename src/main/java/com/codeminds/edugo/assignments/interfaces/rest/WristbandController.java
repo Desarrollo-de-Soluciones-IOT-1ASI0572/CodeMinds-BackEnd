@@ -1,11 +1,11 @@
 package com.codeminds.edugo.assignments.interfaces.rest;
 
-import com.codeminds.edugo.assignments.domain.models.commands.entities.DeleteWristbandCommand;
+import com.codeminds.edugo.assignments.domain.models.commands.DeleteWristbandCommand;
 import com.codeminds.edugo.assignments.domain.models.entities.Wristband;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetAllWristbandsQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByStudentIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByWristbandStatusQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllWristbandsQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByStudentIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByWristbandStatusQuery;
 import com.codeminds.edugo.assignments.domain.services.WristbandCommandService;
 import com.codeminds.edugo.assignments.domain.services.WristbandQueryService;
 import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.WristbandRepository;

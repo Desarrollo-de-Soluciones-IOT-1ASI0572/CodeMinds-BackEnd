@@ -1,10 +1,10 @@
 package com.codeminds.edugo.assignments.interfaces.rest;
 
 import com.codeminds.edugo.assignments.domain.models.aggregates.Student;
-import com.codeminds.edugo.assignments.domain.models.commands.aggregates.DeleteStudentCommand;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetAllStudentsQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetStudentsByDriverProfileIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.commands.DeleteStudentCommand;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllStudentsQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByDriverProfileIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByIdQuery;
 import com.codeminds.edugo.assignments.domain.services.StudentCommandService;
 import com.codeminds.edugo.assignments.domain.services.StudentQueryService;
 import com.codeminds.edugo.assignments.interfaces.rest.resources.CreateStudentResource;

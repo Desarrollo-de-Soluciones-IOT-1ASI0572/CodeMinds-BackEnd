@@ -2,8 +2,8 @@ package com.codeminds.edugo.assignments.application.internal.commandservices;
 
 import com.codeminds.edugo.assignments.application.internal.outboundservices.acl.ExternalProfileService;
 import com.codeminds.edugo.assignments.domain.models.aggregates.Student;
-import com.codeminds.edugo.assignments.domain.models.commands.aggregates.CreateStudentCommand;
-import com.codeminds.edugo.assignments.domain.models.commands.aggregates.DeleteStudentCommand;
+import com.codeminds.edugo.assignments.domain.models.commands.CreateStudentCommand;
+import com.codeminds.edugo.assignments.domain.models.commands.DeleteStudentCommand;
 import com.codeminds.edugo.assignments.domain.services.StudentCommandService;
 import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.StudentRepository;
 import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.repositories.ProfileRepository;

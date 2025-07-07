@@ -1,10 +1,10 @@
 package com.codeminds.edugo.assignments.domain.services;
 
 import com.codeminds.edugo.assignments.domain.models.entities.Wristband;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetAllWristbandsQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByStudentIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.entities.wristband.GetWristbandsByWristbandStatusQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllWristbandsQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByStudentIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetWristbandsByWristbandStatusQuery;
 
 import java.util.List;
 

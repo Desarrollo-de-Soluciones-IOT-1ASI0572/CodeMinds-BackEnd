@@ -1,4 +1,4 @@
-package com.codeminds.edugo.assignments.domain.models.commands.entities;
+package com.codeminds.edugo.assignments.domain.models.commands;
 
 import com.codeminds.edugo.assignments.domain.models.valueobjects.ScanType;
 

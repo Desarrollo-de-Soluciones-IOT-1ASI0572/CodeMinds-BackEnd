@@ -1,7 +1,7 @@
 package com.codeminds.edugo.assignments.interfaces.acl;
 
 import com.codeminds.edugo.assignments.domain.models.aggregates.Student;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByIdQuery;
 import com.codeminds.edugo.assignments.domain.services.StudentQueryService;
 import org.springframework.stereotype.Service;
 @Service

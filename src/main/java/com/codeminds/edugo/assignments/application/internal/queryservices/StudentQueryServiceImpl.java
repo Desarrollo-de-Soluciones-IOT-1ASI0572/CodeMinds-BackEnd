@@ -1,9 +1,9 @@
 package com.codeminds.edugo.assignments.application.internal.queryservices;
 
 import com.codeminds.edugo.assignments.domain.models.aggregates.Student;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetAllStudentsQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetStudentsByDriverProfileIdQuery;
-import com.codeminds.edugo.assignments.domain.models.queries.aggregates.student.GetStudentsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetAllStudentsQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByDriverProfileIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByIdQuery;
 import com.codeminds.edugo.assignments.domain.services.StudentQueryService;
 import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.StudentRepository;
 import org.springframework.stereotype.Service;
