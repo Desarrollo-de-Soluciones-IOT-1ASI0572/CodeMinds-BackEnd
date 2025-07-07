@@ -196,9 +196,9 @@ public class TripController {
     /**
      * Marca el inicio de una ruta para un vehículo.
      */
-    @PutMapping("/start")
-    public ResponseEntity<VehicleResource> startRoute(@RequestBody StartRouteResource resource) {
-        return commandService.handle(StartRouteCommandFromResourceAssembler.toCommandFromResource(resource))
+    @PutMapping("/{tripId}/start")
+    public ResponseEntity<VehicleResource> startRoute(@PathVariable Long tripId) {
+        return commandService.handle(StartRouteCommandFromResourceAssembler.toCommandFromResource(tripId))
                 .map(vehicle -> new ResponseEntity<>(
                         VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle),
                         CREATED))
@@ -208,9 +208,9 @@ public class TripController {
     /**
      * Finaliza la ruta activa de un vehículo.
      */
-    @PutMapping("/end")
-    public ResponseEntity<Void> endRoute(@RequestBody EndRouteResource resource) {
-        commandService.handle(EndRouteCommandFromResourceAssembler.toCommandFromResource(resource));
+    @PutMapping("/{tripId}/end")
+    public ResponseEntity<Void> endRoute(@PathVariable Long tripId) {
+        commandService.handle(EndRouteCommandFromResourceAssembler.toCommandFromResource(tripId));
         return ResponseEntity.ok().build();
     }
 }
