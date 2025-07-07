@@ -1,6 +1,7 @@
 package com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories;
 
 import com.codeminds.edugo.tracking.domain.model.entities.Trip;
+import com.codeminds.edugo.tracking.domain.model.valueobjects.TripStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,16 +17,13 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     List<Trip> findByVehicle_DriverIdAndEndTimeIsNotNull(Integer driverId);
 
-    Trip findTopByVehicle_IdAndStartTimeIsNullOrderByIdDesc(Long vehicleId);
 
     List<Trip> findByEndTimeIsNotNull();
 
-    // En TripRepository.java
     List<Trip> findByEndTimeIsNotNullAndVehicle_DriverId(Long driverId);
 
-    //@Query("SELECT t FROM Trip t WHERE t.endTime IS NULL")
+    //@Query("SELECT t FROM Trip t WHERE t.driver.id = :driverId AND t.endTime IS NULL")
     //Optional<Trip> findActiveTripByDriverId(@Param("driverId") Long driverId);
 
-    @Query("SELECT t FROM Trip t WHERE t.driver.id = :driverId AND t.endTime IS NULL")
-    Optional<Trip> findActiveTripByDriverId(@Param("driverId") Long driverId);
+    List<Trip> findByDriver_IdAndStatus(Long driverId, TripStatus status);
 }

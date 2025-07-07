@@ -9,6 +9,7 @@ import com.codeminds.edugo.tracking.domain.model.aggregates.Vehicle;
 import com.codeminds.edugo.tracking.domain.model.commands.DeleteTripCommand;
 import com.codeminds.edugo.tracking.domain.model.entities.Trip;
 import com.codeminds.edugo.tracking.domain.model.entities.TripStudent;
+import com.codeminds.edugo.tracking.domain.model.valueobjects.TripStatus;
 import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.TripRepository;
 import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.TripStudentRepository;
 import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.VehicleRepository;
@@ -169,12 +170,9 @@ public class TripController {
      */
     @GetMapping("/active/driver/{driverId}")
     public ResponseEntity<List<ActiveTripResource>> getActiveTripByDriver(@PathVariable Long driverId) {
-        Optional<Trip> activeTrip = tripRepository.findActiveTripByDriverId(driverId);
+        List<Trip> activeTrips = tripRepository.findByDriver_IdAndStatus(driverId, TripStatus.IN_PROGRESS);
 
-        List<ActiveTripResource> response = activeTrip
-                .map(Collections::singletonList)
-                .orElse(Collections.emptyList())
-                .stream()
+        List<ActiveTripResource> response = activeTrips.stream()
                 .map(ActiveTripResourceAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());
 

@@ -4,5 +4,6 @@ import java.time.LocalDateTime;
 public record VehicleLocationResource(Long vehicleId,
                                       Long tripId,
                                       GeoPoint location,
-                                      LocalDateTime lastUpdate) {
+                                      LocalDateTime lastUpdate,
+                                      Double speed) {
 }

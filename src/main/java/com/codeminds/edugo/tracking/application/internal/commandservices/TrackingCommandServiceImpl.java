@@ -70,7 +70,6 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
     }
 
 
-
     @Override
     public void handle(EndRouteCommand command) {
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
@@ -87,7 +86,7 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         eventPublisher.publish(new TripEndedEvent(
                 trip.getId(),
                 vehicle.getId(),
-                trip.getDriver().getId(),  // Asegúrate que Trip tenga getDriver()
+                trip.getDriver().getId(),
                 trip.getOrigin(),
                 trip.getDestination(),
                 trip.getStartTime()

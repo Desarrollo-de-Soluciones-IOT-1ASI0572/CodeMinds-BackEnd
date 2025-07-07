@@ -102,7 +102,8 @@ public class VehicleController {
                             lastLocation.get().getLatitude(),
                             lastLocation.get().getLongitude()
                     ),
-                    lastLocation.get().getTimestamp()
+                    lastLocation.get().getTimestamp(),
+                    lastLocation.get().getSpeed()
             );
 
             return ResponseEntity.ok(resource);

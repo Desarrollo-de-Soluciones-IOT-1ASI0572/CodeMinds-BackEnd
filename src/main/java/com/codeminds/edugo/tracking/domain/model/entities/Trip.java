@@ -2,6 +2,7 @@ package com.codeminds.edugo.tracking.domain.model.entities;
 
 import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
 import com.codeminds.edugo.tracking.domain.model.aggregates.Vehicle;
+import com.codeminds.edugo.tracking.domain.model.valueobjects.TripStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -44,23 +45,30 @@ public class Trip {
     @JoinColumn(name = "driver_id", nullable = false)
     private Profile driver;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TripStatus status;
+
     public Trip(Vehicle vehicle, Profile driver, String origin, String destination) {
         this.vehicle = vehicle;
         this.driver = driver;
         this.origin = origin;
         this.destination = destination;
+        this.status = TripStatus.CREATED;
     }
 
     public Trip() {
-
-    }
-
-    public void endTrip() {
-        this.endTime = LocalDateTime.now();
+        this.status = TripStatus.CREATED;
     }
 
     public void startTrip() {
+        this.status = TripStatus.IN_PROGRESS;
         this.startTime = LocalDateTime.now();
+    }
+
+    public void endTrip() {
+        this.status = TripStatus.COMPLETED;
+        this.endTime = LocalDateTime.now();
     }
 
     public void addStudent(TripStudent student) {
