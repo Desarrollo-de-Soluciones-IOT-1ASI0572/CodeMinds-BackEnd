@@ -5,6 +5,7 @@ import com.codeminds.edugo.assignments.domain.models.commands.DeleteStudentComma
 import com.codeminds.edugo.assignments.domain.models.queries.GetAllStudentsQuery;
 import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByDriverProfileIdQuery;
 import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByParentProfileIdQuery;
 import com.codeminds.edugo.assignments.domain.services.StudentCommandService;
 import com.codeminds.edugo.assignments.domain.services.StudentQueryService;
 import com.codeminds.edugo.assignments.interfaces.rest.resources.CreateStudentResource;
@@ -75,6 +76,21 @@ public class StudentController {
 
         List<Student> students = studentQueryService.handle(
                 new GetStudentsByDriverProfileIdQuery(driverProfileId)
+        );
+
+        List<StudentResource> resources = students.stream()
+                .map(StudentResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+
+        return ResponseEntity.ok(resources);
+    }
+
+    @GetMapping("/parent/{parentProfileId}")
+    public ResponseEntity<List<StudentResource>> getStudentsByParentProfileId(
+            @PathVariable Long parentProfileId) {
+
+        List<Student> students = studentQueryService.handle(
+                new GetStudentsByParentProfileIdQuery(parentProfileId)
         );
 
         List<StudentResource> resources = students.stream()

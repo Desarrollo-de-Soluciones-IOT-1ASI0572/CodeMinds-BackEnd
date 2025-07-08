@@ -4,6 +4,7 @@ import com.codeminds.edugo.assignments.domain.models.aggregates.Student;
 import com.codeminds.edugo.assignments.domain.models.queries.GetAllStudentsQuery;
 import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByDriverProfileIdQuery;
 import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByIdQuery;
+import com.codeminds.edugo.assignments.domain.models.queries.GetStudentsByParentProfileIdQuery;
 import com.codeminds.edugo.assignments.domain.services.StudentQueryService;
 import com.codeminds.edugo.assignments.infrastructure.persistence.jpa.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -34,5 +35,10 @@ public class StudentQueryServiceImpl implements StudentQueryService {
     @Override
     public List<Student> handle(GetStudentsByDriverProfileIdQuery query) {
         return studentRepository.findByDriverId(query.driverProfileId());
+    }
+
+    @Override
+    public List<Student> handle(GetStudentsByParentProfileIdQuery query) {
+        return studentRepository.findByParentProfileId(query.parentProfileId());
     }
 }
