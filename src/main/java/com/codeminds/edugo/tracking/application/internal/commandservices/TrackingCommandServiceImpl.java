@@ -9,6 +9,7 @@ import com.codeminds.edugo.tracking.domain.model.commands.*;
 import com.codeminds.edugo.tracking.domain.model.entities.Location;
 import com.codeminds.edugo.tracking.domain.model.entities.Trip;
 import com.codeminds.edugo.tracking.domain.model.entities.TripStudent;
+import com.codeminds.edugo.tracking.domain.model.valueobjects.TripStatus;
 import com.codeminds.edugo.tracking.domain.services.TrackingCommandService;
 import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.LocationRepository;
 import com.codeminds.edugo.tracking.infrastructure.persistance.jpa.repositories.TripRepository;
@@ -34,7 +35,9 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
 
     private static final double SPEED_LIMIT = 60.0;
 
-    public TrackingCommandServiceImpl(LocationRepository locationRepository, VehicleRepository vehicleRepository, TripRepository tripRepository, TripStudentRepository tripStudentRepository, DomainEventPublisher eventPublisher, StudentRepository studentRepository) {
+    public TrackingCommandServiceImpl(LocationRepository locationRepository, VehicleRepository vehicleRepository,
+            TripRepository tripRepository, TripStudentRepository tripStudentRepository,
+            DomainEventPublisher eventPublisher, StudentRepository studentRepository) {
         this.locationRepository = locationRepository;
         this.vehicleRepository = vehicleRepository;
         this.tripRepository = tripRepository;
@@ -46,7 +49,8 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
     @Override
     public Optional<Vehicle> handle(StartRouteCommand command) {
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-        if (optionalTrip.isEmpty()) return Optional.empty();
+        if (optionalTrip.isEmpty())
+            return Optional.empty();
 
         Trip trip = optionalTrip.get();
         Vehicle vehicle = trip.getVehicle();
@@ -63,17 +67,16 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
                 vehicle.getDriverId().longValue(),
                 trip.getOrigin(),
                 trip.getDestination(),
-                trip.getStartTime()
-        ));
+                trip.getStartTime()));
 
         return Optional.of(vehicle);
     }
 
-
     @Override
     public void handle(EndRouteCommand command) {
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-        if (optionalTrip.isEmpty()) return;
+        if (optionalTrip.isEmpty())
+            return;
 
         Trip trip = optionalTrip.get();
         trip.endTrip();
@@ -89,25 +92,25 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
                 trip.getDriver().getId(),
                 trip.getOrigin(),
                 trip.getDestination(),
-                trip.getStartTime()
-        ));
+                trip.getStartTime()));
     }
 
     @Override
     public Optional<Location> handle(CreateLocationCommand command) {
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(command.vehicleId());
-        if (optionalVehicle.isEmpty()) return Optional.empty();
+        if (optionalVehicle.isEmpty())
+            return Optional.empty();
 
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-        if (optionalTrip.isEmpty()) return Optional.empty();
+        if (optionalTrip.isEmpty())
+            return Optional.empty();
 
         Location location = new Location(
                 command.vehicleId(),
                 command.latitude(),
                 command.longitude(),
                 command.speed(),
-                optionalTrip.get()
-        );
+                optionalTrip.get());
 
         Location saved = locationRepository.save(location);
 
@@ -117,8 +120,7 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
                     command.speed(),
                     command.latitude(),
                     command.longitude(),
-                    location.getTimestamp()
-            ));
+                    location.getTimestamp()));
         }
 
         return Optional.of(saved);
@@ -135,8 +137,7 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         eventPublisher.publish(new StudentBoardedEvent(
                 command.studentId(),
                 command.tripId(),
-                command.boardedAt()
-        ));
+                command.boardedAt()));
     }
 
     @Override
@@ -150,8 +151,7 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         eventPublisher.publish(new StudentExitedEvent(
                 command.studentId(),
                 command.tripId(),
-                command.exitedAt()
-        ));
+                command.exitedAt()));
     }
 
     @Override
@@ -164,12 +164,14 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
     @Override
     public Optional<TripStudent> handle(CreateTripStudentCommand command) {
         TripStudent existing = tripStudentRepository.findByTrip_IdAndStudentId(command.tripId(), command.studentId());
-        if (existing != null) return Optional.of(existing);
+        if (existing != null)
+            return Optional.of(existing);
 
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
         Optional<Student> optionalStudent = studentRepository.findById(command.studentId());
 
-        if (optionalTrip.isEmpty() || optionalStudent.isEmpty()) return Optional.empty();
+        if (optionalTrip.isEmpty() || optionalStudent.isEmpty())
+            return Optional.empty();
 
         Trip trip = optionalTrip.get();
         Student student = optionalStudent.get();
@@ -185,16 +187,18 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         return locationRepository.findLastLocation(vehicleId);
     }
 
-    /*@Override
-    public boolean handle(DeleteTripCommand command) {
-        Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-
-        if (optionalTrip.isPresent()) {
-            tripRepository.delete(optionalTrip.get());
-            return true;
-        }
-        return false;
-    }*/
+    /*
+     * @Override
+     * public boolean handle(DeleteTripCommand command) {
+     * Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+     * 
+     * if (optionalTrip.isPresent()) {
+     * tripRepository.delete(optionalTrip.get());
+     * return true;
+     * }
+     * return false;
+     * }
+     */
 
     @Transactional
     @Override
@@ -214,16 +218,31 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         return false;
     }
 
-    /*@Override
-    public boolean handle(DeleteTripCommand command) {
+    /*
+     * @Override
+     * public boolean handle(DeleteTripCommand command) {
+     * Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
+     * 
+     * if (optionalTrip.isPresent()) {
+     * tripRepository.delete(optionalTrip.get());
+     * return true;
+     * }
+     * return false;
+     * }
+     */
+
+    @Override
+    public Optional<Trip> handle(UpdateTripStatusCommand command) {
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-
-        if (optionalTrip.isPresent()) {
-            tripRepository.delete(optionalTrip.get());
-            return true;
+        if (optionalTrip.isEmpty()) {
+            return Optional.empty(); // No lanzar excepción, devolver Optional vacío
         }
-        return false;
-    }*/
 
+        Trip trip = optionalTrip.get();
+        // Usar el status del command, no hardcodearlo
+        trip.updateStatus(command.status());
+        Trip savedTrip = tripRepository.save(trip);
+        return Optional.of(savedTrip); // Devolver el trip guardado, no el original
+    }
 
 }

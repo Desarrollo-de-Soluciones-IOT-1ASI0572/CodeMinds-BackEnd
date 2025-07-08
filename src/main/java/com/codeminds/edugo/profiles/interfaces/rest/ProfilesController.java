@@ -61,7 +61,7 @@ public class ProfilesController {
      * @param profileId the id of the Profile to get
      * @return the Profile resource associated to given Profile id
      */
-    @GetMapping("/profileId/{profileId}")
+    @GetMapping("/{profileId}")
     public ResponseEntity<ProfileResource> getProfileById(@PathVariable Long profileId) {
         var getProfileByIdQuery = new GetProfileByIdQuery(profileId);
         var profile = profileQueryService.handle(getProfileByIdQuery);

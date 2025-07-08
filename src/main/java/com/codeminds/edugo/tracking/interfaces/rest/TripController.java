@@ -40,11 +40,11 @@ public class TripController {
     private final ProfileRepository profileRepository;
 
     public TripController(TrackingCommandServiceImpl commandService,
-                          TripRepository tripRepository,
-                          StudentRepository studentRepository,
-                          VehicleRepository vehicleRepository,
-                          TripStudentRepository tripStudentRepository,
-                          ProfileRepository profileRepository) {
+            TripRepository tripRepository,
+            StudentRepository studentRepository,
+            VehicleRepository vehicleRepository,
+            TripStudentRepository tripStudentRepository,
+            ProfileRepository profileRepository) {
         this.commandService = commandService;
         this.tripRepository = tripRepository;
         this.studentRepository = studentRepository;
@@ -70,8 +70,7 @@ public class TripController {
                 optionalVehicle.get(),
                 optionalDriver.get(),
                 resource.origin(),
-                resource.destination()
-        );
+                resource.destination());
         Trip savedTrip = tripRepository.save(trip);
 
         // 3. Obtener estudiantes del driver y crear TripStudent
@@ -101,9 +100,8 @@ public class TripController {
     @GetMapping("/{id}")
     public ResponseEntity<TripResource> getTripById(@PathVariable Long id) {
         Optional<Trip> optionalTrip = tripRepository.findById(id);
-        return optionalTrip.map(trip ->
-                ResponseEntity.ok(TripResourceFromEntityAssembler.toResourceFromEntity(trip))
-        ).orElse(ResponseEntity.notFound().build());
+        return optionalTrip.map(trip -> ResponseEntity.ok(TripResourceFromEntityAssembler.toResourceFromEntity(trip)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -122,10 +120,10 @@ public class TripController {
     @GetMapping("/{tripId}/students/{studentId}")
     public ResponseEntity<TripStudentResource> getTripStudentByTripIdAndStudentId(
             @PathVariable Long tripId,
-            @PathVariable Long studentId
-    ) {
+            @PathVariable Long studentId) {
         TripStudent ts = tripStudentRepository.findByTrip_IdAndStudentId(tripId, studentId);
-        if (ts == null) return ResponseEntity.notFound().build();
+        if (ts == null)
+            return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(TripStudentResourceFromEntityAssembler.toResourceFromEntity(ts));
     }
@@ -181,7 +179,6 @@ public class TripController {
         return ResponseEntity.ok(response);
     }
 
-
     /**
      * Asocia un estudiante a un viaje determinado.
      */
@@ -196,22 +193,39 @@ public class TripController {
 
     /**
      * Marca el inicio de una ruta para un vehículo.
-     */
-    @PutMapping("/{tripId}/start")
-    public ResponseEntity<VehicleResource> startRoute(@PathVariable Long tripId) {
-        return commandService.handle(StartRouteCommandFromResourceAssembler.toCommandFromResource(tripId))
-                .map(vehicle -> new ResponseEntity<>(
-                        VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle),
-                        CREATED))
-                .orElse(ResponseEntity.badRequest().build());
-    }
-
-    /**
+     * 
+     * @PutMapping("/{tripId}/start")
+     * public ResponseEntity<VehicleResource> startRoute(@PathVariable Long tripId)
+     * {
+     * return
+     * commandService.handle(StartRouteCommandFromResourceAssembler.toCommandFromResource(tripId))
+     * .map(vehicle -> new ResponseEntity<>(
+     * VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle),
+     * CREATED))
+     * .orElse(ResponseEntity.badRequest().build());
+     * }
+     * 
+     * /**
      * Finaliza la ruta activa de un vehículo.
+     * 
+     * @PutMapping("/{tripId}/end")
+     * public ResponseEntity<Void> endRoute(@PathVariable Long tripId) {
+     * commandService.handle(EndRouteCommandFromResourceAssembler.toCommandFromResource(tripId));
+     * return ResponseEntity.ok().build();
+     * }
+     * /*
      */
-    @PutMapping("/{tripId}/end")
-    public ResponseEntity<Void> endRoute(@PathVariable Long tripId) {
-        commandService.handle(EndRouteCommandFromResourceAssembler.toCommandFromResource(tripId));
-        return ResponseEntity.ok().build();
+    @PutMapping("/{tripId}/status")
+    public ResponseEntity<TripResource> updateTripStatus(@PathVariable Long tripId,
+            @RequestBody UpdateTripStatusResource resource) {
+
+        if (resource.status() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return commandService
+                .handle(UpdateTripStatusCommandFromResourceAssembler.toCommandFromResource(tripId, resource))
+                .map(trip -> ResponseEntity.ok(TripResourceFromEntityAssembler.toResourceFromEntity(trip)))
+                .orElse(ResponseEntity.notFound().build()); // Más específico que badRequest
     }
 }
