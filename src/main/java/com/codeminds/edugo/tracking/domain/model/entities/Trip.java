@@ -71,6 +71,16 @@ public class Trip {
         this.endTime = LocalDateTime.now();
     }
 
+    public void updateStatus(TripStatus newStatus) {
+        this.status = newStatus;
+
+        if (newStatus == TripStatus.IN_PROGRESS && this.startTime == null) {
+            this.startTime = LocalDateTime.now();
+        } else if (newStatus == TripStatus.COMPLETED && this.endTime == null) {
+            this.endTime = LocalDateTime.now();
+        }
+    }
+
     public void addStudent(TripStudent student) {
         this.students.add(student);
         student.setTrip(this);
@@ -80,6 +90,7 @@ public class Trip {
         this.locations.add(location);
         location.setTrip(this);
     }
+
     public Long getId() {
         return id;
     }
