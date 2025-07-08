@@ -16,7 +16,6 @@ public record WristbandResource(
         Long id,
         String rfidCode,
         WristbandStatus wristbandStatus,
-        StudentDto student,
-        List<SensorScanResource> sensorScans
+        Long studentId
 ) {}
 

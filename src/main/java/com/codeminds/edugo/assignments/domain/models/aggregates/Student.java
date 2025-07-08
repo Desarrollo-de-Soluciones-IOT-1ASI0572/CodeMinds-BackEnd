@@ -36,16 +36,16 @@ public class Student extends AuditableAbstractAggregateRoot {
     @Column(name = "driver_profile_id")
     private Long driverId;
 
-    @EqualsAndHashCode.Exclude
-    @OneToOne(mappedBy = "student", optional = true)
-    private Wristband wristband;
+    @Column(name = "wristband_id")
+    private Long wristbandId;
+
     protected Student(){
         this.setCreatedAt();
         this.setUpdatedAt();
     }
 
     public Student(String name, String lastName, String homeAddress,
-                   String schoolAddress, String studentPhotoUrl, Long parentProfileId, Long driverId) {
+                   String schoolAddress, String studentPhotoUrl, Long parentProfileId, Long driverId, Long wristbandId) {
         this.name = name;
         this.lastName = lastName;
         this.homeAddress = homeAddress;
@@ -53,6 +53,7 @@ public class Student extends AuditableAbstractAggregateRoot {
         this.studentPhotoUrl = studentPhotoUrl;
         this.parentProfileId = parentProfileId;
         this.driverId = driverId;
+        this.wristbandId = wristbandId;
         this.setCreatedAt();
         this.setUpdatedAt();
     }

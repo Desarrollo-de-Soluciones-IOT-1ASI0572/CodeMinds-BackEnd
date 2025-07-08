@@ -7,9 +7,7 @@ import com.codeminds.edugo.assignments.interfaces.rest.resources.WristbandResour
 public class StudentResourceFromEntityAssembler {
     public static StudentResource toResourceFromEntity(Student entity) {
         WristbandResource wristbandResource = null;
-        if (entity.getWristband() != null) {
-            wristbandResource = WristbandResourceFromEntityAssembler.toResourceFromEntity(entity.getWristband());
-        }
+
 
         return new StudentResource(
                 entity.getId(),
@@ -18,7 +16,7 @@ public class StudentResourceFromEntityAssembler {
                 entity.getHomeAddress(),
                 entity.getSchoolAddress(),
                 entity.getStudentPhotoUrl(),
-                wristbandResource,
+                entity.getWristbandId(),
                 entity.getParentProfileId(),
                 entity.getDriverId()
         );

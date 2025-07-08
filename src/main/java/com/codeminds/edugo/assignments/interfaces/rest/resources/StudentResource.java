@@ -7,7 +7,7 @@ public record StudentResource(
         String homeAddress,
         String schoolAddress,
         String studentPhotoUrl,
-        WristbandResource wristband,
+        Long wristbandId,
         Long parentProfile,
         Long driverId
 ) {}

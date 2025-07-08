@@ -50,7 +50,8 @@ public class StudentCommandServiceImpl implements StudentCommandService {
                 command.schoolAddress(),
                 command.studentPhotoUrl(),
                 command.parentProfileId(), // Solo el ID
-                command.driverId()
+                command.driverId(),
+                null
         );
 
         return Optional.of(studentRepository.save(student));

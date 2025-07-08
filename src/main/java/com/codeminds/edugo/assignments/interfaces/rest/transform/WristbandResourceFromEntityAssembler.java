@@ -33,8 +33,7 @@ public class WristbandResourceFromEntityAssembler {
                 entity.getId(),
                 entity.getRfidCode(),
                 entity.getWristbandStatus(),
-                studentDto,
-                sensorScanResources
+                entity.getStudent().getId()
         );
 
     }
