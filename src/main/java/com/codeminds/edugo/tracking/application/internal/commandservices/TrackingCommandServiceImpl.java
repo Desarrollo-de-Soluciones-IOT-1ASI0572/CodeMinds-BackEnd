@@ -187,19 +187,6 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         return locationRepository.findLastLocation(vehicleId);
     }
 
-    /*
-     * @Override
-     * public boolean handle(DeleteTripCommand command) {
-     * Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-     * 
-     * if (optionalTrip.isPresent()) {
-     * tripRepository.delete(optionalTrip.get());
-     * return true;
-     * }
-     * return false;
-     * }
-     */
-
     @Transactional
     @Override
     public boolean handle(DeleteTripCommand command) {
@@ -208,7 +195,6 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         if (optionalTrip.isPresent()) {
             Trip trip = optionalTrip.get();
 
-            // Fuerza a cargar relaciones para asegurar eliminación correcta
             trip.getLocations().size();
             trip.getStudents().size();
 
@@ -218,31 +204,43 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         return false;
     }
 
-    /*
-     * @Override
-     * public boolean handle(DeleteTripCommand command) {
-     * Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
-     * 
-     * if (optionalTrip.isPresent()) {
-     * tripRepository.delete(optionalTrip.get());
-     * return true;
-     * }
-     * return false;
-     * }
-     */
-
     @Override
     public Optional<Trip> handle(UpdateTripStatusCommand command) {
         Optional<Trip> optionalTrip = tripRepository.findById(command.tripId());
         if (optionalTrip.isEmpty()) {
-            return Optional.empty(); // No lanzar excepción, devolver Optional vacío
+            return Optional.empty();
         }
 
         Trip trip = optionalTrip.get();
-        // Usar el status del command, no hardcodearlo
+        TripStatus oldStatus = trip.getStatus();
+
         trip.updateStatus(command.status());
         Trip savedTrip = tripRepository.save(trip);
-        return Optional.of(savedTrip); // Devolver el trip guardado, no el original
+
+        if (oldStatus != TripStatus.IN_PROGRESS && command.status() == TripStatus.IN_PROGRESS) {
+            System.out.println("📢 PUBLICANDO TripStartedEvent desde UpdateTripStatus");
+            eventPublisher.publish(new TripStartedEvent(
+                    trip.getId(),
+                    trip.getVehicle().getId(),
+                    trip.getDriver().getId(),
+                    trip.getOrigin(),
+                    trip.getDestination(),
+                    trip.getStartTime()
+            ));
+        } else if (oldStatus != TripStatus.COMPLETED && command.status() == TripStatus.COMPLETED) {
+            System.out.println("📢 PUBLICANDO TripEndedEvent desde UpdateTripStatus");
+            eventPublisher.publish(new TripEndedEvent(
+                    trip.getId(),
+                    trip.getVehicle().getId(),
+                    trip.getDriver().getId(),
+                    trip.getOrigin(),
+                    trip.getDestination(),
+                    trip.getStartTime()
+            ));
+        }
+
+        return Optional.of(savedTrip);
     }
+
 
 }
