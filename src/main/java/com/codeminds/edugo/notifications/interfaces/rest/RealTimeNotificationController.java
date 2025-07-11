@@ -21,7 +21,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
-@Tag(name = "RealTimeNotification", description = "Real-Time Notification Management Endpoints")
+@Tag(name = "Notification", description = "Notification Management Endpoints")
 public class RealTimeNotificationController {
     private final RealTimeNotificationCommandService realTimeNotificationCommandService;
     private final RealTimeNotificationQueryService realTimeNotificationQueryService;
