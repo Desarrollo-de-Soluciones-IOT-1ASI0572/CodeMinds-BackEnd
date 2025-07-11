@@ -4,4 +4,5 @@ public enum TripStatus {
     CREATED,
     IN_PROGRESS,
     COMPLETED,
+    EMERGENCY
 }
