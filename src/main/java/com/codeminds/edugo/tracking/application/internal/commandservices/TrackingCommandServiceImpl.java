@@ -242,5 +242,41 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
         return Optional.of(savedTrip);
     }
 
+    @Transactional
+    public void handle(ActivateEmergencyCommand command) {
+        Trip trip = tripRepository.findById(command.tripId())
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        trip.markAsEmergency();
+        tripRepository.save(trip);
+
+        // ⏩ OBTIENE ubicación automáticamente
+        Optional<Location> lastLocation = getCurrentLocation(trip.getVehicle().getId());
+
+        Double latitude = lastLocation.map(Location::getLatitude).orElse(null);
+        Double longitude = lastLocation.map(Location::getLongitude).orElse(null);
+
+        // Opcional: podrías guardar una marca de ubicación "emergency" si quieres dejar rastro
+        if (latitude != null && longitude != null) {
+            Location emergencyLocation = new Location(
+                    trip.getVehicle().getId(),
+                    latitude,
+                    longitude,
+                    0.0,
+                    trip
+            );
+            locationRepository.save(emergencyLocation);
+        }
+
+        eventPublisher.publish(new EmergencyEvent(
+                trip.getId(),
+                trip.getDriver().getId(),
+                latitude,
+                longitude
+        ));
+    }
+
+
+
 
 }
