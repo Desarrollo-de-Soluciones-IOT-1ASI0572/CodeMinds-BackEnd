@@ -6,6 +6,7 @@ import com.codeminds.edugo.profiles.domain.model.aggregates.Profile;
 import com.codeminds.edugo.profiles.infrastructure.persistence.jpa.repositories.ProfileRepository;
 import com.codeminds.edugo.tracking.application.internal.commandservices.TrackingCommandServiceImpl;
 import com.codeminds.edugo.tracking.domain.model.aggregates.Vehicle;
+import com.codeminds.edugo.tracking.domain.model.commands.ActivateEmergencyCommand;
 import com.codeminds.edugo.tracking.domain.model.commands.DeleteTripCommand;
 import com.codeminds.edugo.tracking.domain.model.entities.Trip;
 import com.codeminds.edugo.tracking.domain.model.entities.TripStudent;
@@ -228,4 +229,11 @@ public class TripController {
                 .map(trip -> ResponseEntity.ok(TripResourceFromEntityAssembler.toResourceFromEntity(trip)))
                 .orElse(ResponseEntity.notFound().build()); // Más específico que badRequest
     }
+
+    @PutMapping("/{tripId}/emergency")
+    public ResponseEntity<Void> activateEmergency(@PathVariable Long tripId) {
+        commandService.handle(new ActivateEmergencyCommand(tripId));
+        return ResponseEntity.ok().build();
+    }
+
 }

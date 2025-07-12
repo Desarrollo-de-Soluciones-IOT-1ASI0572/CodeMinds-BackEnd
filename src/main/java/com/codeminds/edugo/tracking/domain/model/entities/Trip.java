@@ -91,6 +91,10 @@ public class Trip {
         location.setTrip(this);
     }
 
+    public void markAsEmergency() {
+        this.status = TripStatus.EMERGENCY;
+    }
+
     public Long getId() {
         return id;
     }
