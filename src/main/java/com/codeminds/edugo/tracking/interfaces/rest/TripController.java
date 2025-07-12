@@ -231,8 +231,8 @@ public class TripController {
     }
 
     @PutMapping("/{tripId}/emergency")
-    public ResponseEntity<Void> activateEmergency(@PathVariable Long tripId, @RequestBody EmergencyResource resource) {
-        commandService.handle(new ActivateEmergencyCommand(tripId, resource.latitude(), resource.longitude()));
+    public ResponseEntity<Void> activateEmergency(@PathVariable Long tripId) {
+        commandService.handle(new ActivateEmergencyCommand(tripId));
         return ResponseEntity.ok().build();
     }
 
