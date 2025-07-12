@@ -244,28 +244,41 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
 
     @Transactional
     public void handle(ActivateEmergencyCommand command) {
+        System.out.println("🚨 [EMERGENCY] - Iniciando activación de emergencia para tripId: " + command.tripId());
+
         Trip trip = tripRepository.findById(command.tripId())
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
 
         trip.markAsEmergency();
-        tripRepository.save(trip);
 
-        // ⏩ OBTIENE ubicación automáticamente
+        trip.endTrip();
+
+        tripRepository.save(trip);
+        System.out.println("🚨 [EMERGENCY] - Trip marcado como EMERGENCY y finalizado, guardado en base de datos.");
+
         Optional<Location> lastLocation = getCurrentLocation(trip.getVehicle().getId());
+
+        if (lastLocation.isPresent()) {
+            System.out.println("📍 [EMERGENCY] - Última ubicación encontrada:");
+            System.out.println("  Latitude: " + lastLocation.get().getLatitude());
+            System.out.println("  Longitude: " + lastLocation.get().getLongitude());
+        } else {
+            System.out.println("⚠️ [EMERGENCY] - No se encontró ubicación previa para este vehículo.");
+        }
 
         Double latitude = lastLocation.map(Location::getLatitude).orElse(null);
         Double longitude = lastLocation.map(Location::getLongitude).orElse(null);
 
-        // Opcional: podrías guardar una marca de ubicación "emergency" si quieres dejar rastro
         if (latitude != null && longitude != null) {
             Location emergencyLocation = new Location(
                     trip.getVehicle().getId(),
                     latitude,
                     longitude,
-                    0.0,
+                    0.0, // speed
                     trip
             );
             locationRepository.save(emergencyLocation);
+            System.out.println("✅ [EMERGENCY] - Ubicación de emergencia guardada con lat: " + latitude + ", lon: " + longitude);
         }
 
         eventPublisher.publish(new EmergencyEvent(
@@ -274,8 +287,8 @@ public class TrackingCommandServiceImpl implements TrackingCommandService {
                 latitude,
                 longitude
         ));
+        System.out.println("📢 [EMERGENCY] - EmergencyEvent publicado con coordenadas. 🚨");
     }
-
 
 
 
